@@ -106,6 +106,43 @@ main {
   border-radius: 0 2px 2px 0;
 }
 
+/* ── Source picker (sidebar) ──────────────────────────────────── */
+.source-picker { padding: 20px 28px 4px; border-top: 1px solid var(--rule); margin-top: auto; }
+.source-picker .source-label {
+  font-size: .62rem; font-weight: 700; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--dim); margin-bottom: 8px;
+}
+.source-seg { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--rule); }
+.source-seg button {
+  background: transparent; border: none; border-bottom: 1px solid var(--rule);
+  color: var(--dim); font-family: var(--sans); font-size: .72rem; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; padding: 8px 10px;
+  cursor: pointer; text-align: left; transition: all .12s;
+}
+.source-seg button:last-child { border-bottom: none; }
+.source-seg button.active { background: var(--black); color: var(--white); }
+.source-seg button:hover:not(.active) { color: var(--black); }
+.source-info-btn {
+  background: none; border: none; color: var(--dim); cursor: pointer;
+  font-family: var(--sans); font-size: .68rem; padding: 8px 0 0; text-decoration: underline;
+}
+.source-info-btn:hover { color: var(--black); }
+
+/* ── Source explainer / unavailable ───────────────────────────── */
+.source-note {
+  border: 1px solid var(--rule); background: var(--surface);
+  padding: 28px; color: var(--dim); font-size: .9rem; line-height: 1.65;
+}
+.source-note strong {
+  display: block; font-family: var(--serif); font-size: 1.2rem;
+  color: var(--black); font-weight: 400; margin-bottom: 6px;
+}
+.src-table { width: 100%; border-collapse: collapse; margin: 4px 0 8px; }
+.src-table th, .src-table td { text-align: left; padding: 10px 12px; font-size: .82rem; vertical-align: top; border-bottom: 1px solid var(--rule); }
+.src-table th { font-size: .66rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.src-table td:first-child { font-weight: 700; white-space: nowrap; }
+.src-pro { color: var(--rising); } .src-con { color: var(--falling); }
+
 /* ── Rate-limit banner ────────────────────────────────────────── */
 #rate-limit-banner {
   display: none;
@@ -401,11 +438,19 @@ select {
   </div>
   <div class="nav-links">
     <button class="nav-link active" onclick="showView('dashboard')"><span class="nav-num">01</span> Dashboard</button>
-    <button class="nav-link" onclick="showView('compare')"><span class="nav-num">02</span> Compare</button>
-    <button class="nav-link" onclick="showView('region-compare')"><span class="nav-num">03</span> Regions</button>
-    <button class="nav-link" onclick="showView('breakout')"><span class="nav-num">04</span> Breakout</button>
-    <button class="nav-link" onclick="showView('related')"><span class="nav-num">05</span> Related</button>
-    <button class="nav-link" onclick="showView('config')"><span class="nav-num">06</span> Configure</button>
+    <button class="nav-link" onclick="showView('region-compare')"><span class="nav-num">02</span> Regions</button>
+    <button class="nav-link" onclick="showView('breakout')"><span class="nav-num">03</span> Breakout</button>
+    <button class="nav-link" onclick="showView('related')"><span class="nav-num">04</span> Related</button>
+    <button class="nav-link" onclick="showView('config')"><span class="nav-num">05</span> Configure</button>
+  </div>
+  <div class="source-picker">
+    <div class="source-label">Data Source</div>
+    <div class="source-seg" id="source-seg">
+      <button data-source="google" class="active" onclick="setSource('google')">Google Trends</button>
+      <button data-source="wikipedia" onclick="setSource('wikipedia')">Wikipedia</button>
+      <button data-source="reddit" onclick="setSource('reddit')">Reddit</button>
+    </div>
+    <button class="source-info-btn" onclick="showView('config')">ⓘ How these differ</button>
   </div>
 </nav>
 
@@ -478,6 +523,10 @@ select {
     <div class="chart-wrap" style="height:320px">
       <canvas id="dash-chart"></canvas>
     </div>
+    <div id="dash-ranking-wrap" style="overflow-x:auto; margin-bottom:28px">
+      <div class="section-label">Head-to-Head Ranking</div>
+      <table class="compare-table" id="dash-table"></table>
+    </div>
     <div class="analysis-panel" id="dash-analysis-panel">
       <div class="section-label">Analysis &amp; Forecast</div>
       <div class="analysis-loading" id="dash-analysis-loading">
@@ -490,79 +539,11 @@ select {
 </section>
 
 <!-- ════════════════════════════════════════════════════════════ -->
-<!-- 02 COMPARE                                                  -->
-<!-- ════════════════════════════════════════════════════════════ -->
-<section id="view-compare" class="hidden">
-  <div class="view-header">
-    <div class="view-meta">02 — Compare</div>
-    <h2>Keyword Compare</h2>
-    <p>Enter up to 5 custom keywords and compare their search interest side-by-side on a single chart. Use this to benchmark competing silhouettes, brands, or trends directly against each other. All keywords are indexed relative to the top performer in the group.</p>
-  </div>
-
-  <div class="controls">
-    <div class="control-group">
-      <label>Region</label>
-      <select id="compare-region" style="min-width:220px">
-        <option value="">Global</option>
-      </select>
-    </div>
-    <div class="control-group">
-      <label>Timeframe</label>
-      <div class="tf-bar">
-        <button class="tf-btn" data-tf="now 7-d">1W</button>
-        <button class="tf-btn" data-tf="today 1-m">1M</button>
-        <button class="tf-btn active" data-tf="today 3-m">3M</button>
-        <button class="tf-btn" data-tf="today 12-m">12M</button>
-        <button class="tf-btn" data-tf="today 5-y">5Y</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="tag-area" style="margin-bottom:20px">
-    <div class="tag-input-row">
-      <div class="ac-wrap" style="flex:1">
-        <input type="text" id="compare-kw-input" placeholder="Add keyword…" style="width:100%" autocomplete="off">
-        <div class="ac-dropdown" id="compare-kw-ac"></div>
-      </div>
-      <button class="btn" onclick="addCompareKeyword()">Add</button>
-    </div>
-    <div class="tags" id="compare-tags"></div>
-    <span class="tag-hint">Up to 5 keywords</span>
-  </div>
-
-  <button class="btn" onclick="runCompare()">Compare</button>
-
-  <hr class="divider">
-
-  <div class="loading" id="compare-loading">
-    <svg width="20" height="20" viewBox="0 0 20 20" class="spinner-svg"><circle cx="10" cy="10" r="7" stroke-dasharray="44" stroke-dashoffset="11"/></svg>
-    Fetching data…
-  </div>
-  <div id="compare-results" class="hidden">
-    <div class="metrics" id="compare-metrics"></div>
-    <div class="chart-wrap" style="height:320px">
-      <canvas id="compare-chart"></canvas>
-    </div>
-    <div style="overflow-x:auto; margin-bottom:28px">
-      <table class="compare-table" id="compare-table"></table>
-    </div>
-    <div class="analysis-panel">
-      <div class="section-label">Analysis &amp; Forecast</div>
-      <div class="analysis-loading" id="compare-analysis-loading">
-        <svg width="16" height="16" viewBox="0 0 20 20" class="spinner-svg"><circle cx="10" cy="10" r="7" stroke-dasharray="44" stroke-dashoffset="11"/></svg>
-        Analyzing…
-      </div>
-      <div class="analysis-content" id="compare-analysis-content"></div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<!-- 03 REGION COMPARE                                           -->
+<!-- 02 REGION COMPARE                                           -->
 <!-- ════════════════════════════════════════════════════════════ -->
 <section id="view-region-compare" class="hidden">
   <div class="view-header">
-    <div class="view-meta">03 — Region Compare</div>
+    <div class="view-meta">02 — Region Compare</div>
     <h2>Region Compare</h2>
     <p>Track how a keyword performs across different markets simultaneously. Select 2–6 regions and a keyword to see search interest overlaid on a single chart — useful for spotting where a trend is gaining ground before it hits globally. Aggregate regions (EMEA All, APLA All, etc.) are computed as country averages.</p>
   </div>
@@ -626,7 +607,7 @@ select {
 <!-- ════════════════════════════════════════════════════════════ -->
 <section id="view-breakout" class="hidden">
   <div class="view-header">
-    <div class="view-meta">04 — Breakout Detection</div>
+    <div class="view-meta">03 — Breakout Detection</div>
     <h2>Breakout Detection</h2>
     <p>Scans your micro-trend keyword list and ranks each term by <strong>momentum</strong> — the difference between average search interest in the second half vs the first half of the past 3 months. A high positive score means a term is gaining fast. Cards at the top left are the hottest movers. Configure the keyword list in the <button onclick="showView('config')" style="background:none;border:none;color:var(--black);font-family:var(--sans);font-size:inherit;cursor:pointer;text-decoration:underline;font-weight:700;padding:0">Configure</button> view.</p>
   </div>
@@ -658,7 +639,7 @@ select {
 <!-- ════════════════════════════════════════════════════════════ -->
 <section id="view-related" class="hidden">
   <div class="view-header">
-    <div class="view-meta">05 — Related Queries</div>
+    <div class="view-meta">04 — Related Queries</div>
     <h2>Related Queries</h2>
     <p>Discover what else people search alongside a specific keyword. <strong>Breakout queries</strong> saw a massive recent spike relative to their normal volume — often a leading signal of early hype. <strong>Top queries</strong> are the most commonly co-searched terms overall, revealing the keyword's established audience and adjacent interests.</p>
   </div>
@@ -691,14 +672,19 @@ select {
     Fetching related queries…
   </div>
   <div id="related-results" class="hidden">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:36px; margin-top:8px">
-      <div>
-        <div class="section-label">Breakout Queries</div>
-        <table class="related-table" id="related-rising-table"></table>
-      </div>
-      <div>
-        <div class="section-label">Top Queries</div>
-        <table class="related-table" id="related-top-table"></table>
+    <div id="related-unavailable" class="hidden" style="border:1px solid var(--rule); padding:28px; color:var(--dim); font-size:.9rem; line-height:1.6">
+      <strong style="display:block; font-family:var(--serif); font-size:1.2rem; color:var(--black); font-weight:400; margin-bottom:6px">No live related data</strong>
+    </div>
+    <div id="related-tables" class="hidden">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:36px; margin-top:8px">
+        <div>
+          <div class="section-label">Breakout Queries</div>
+          <table class="related-table" id="related-rising-table"></table>
+        </div>
+        <div>
+          <div class="section-label">Top Queries</div>
+          <table class="related-table" id="related-top-table"></table>
+        </div>
       </div>
     </div>
   </div>
@@ -709,10 +695,57 @@ select {
 <!-- ════════════════════════════════════════════════════════════ -->
 <section id="view-config" class="hidden">
   <div class="view-header">
-    <div class="view-meta">06 — Configure</div>
+    <div class="view-meta">05 — Configure</div>
     <h2>Configure</h2>
     <p>Customize which keyword groups appear in the Dashboard dropdown, and which micro-trend terms the Breakout scanner watches. Each group supports up to 5 keywords (Google Trends limit). Edit the fields below and save — changes apply immediately without a server restart.</p>
   </div>
+
+  <!-- Data sources explainer -->
+  <div class="config-group">
+    <h3>Data Sources</h3>
+    <p class="text-dim text-sm" style="margin-bottom:12px">Switch sources with the <strong>Data Source</strong> picker in the sidebar. Each measures something different — use them together to separate real demand from hype.</p>
+    <table class="src-table">
+      <tr><th>Source</th><th>What it measures</th><th>Pros</th><th>Cons</th></tr>
+      <tr>
+        <td>Google Trends</td>
+        <td>Relative <em>search interest</em> (0–100), normalized across your keywords.</td>
+        <td class="src-pro">Broadest reach; captures general public curiosity; supports regions.</td>
+        <td class="src-con">Aggressively rate-limits (falls back to sample data); relative-only, no absolute volume.</td>
+      </tr>
+      <tr>
+        <td>Wikipedia</td>
+        <td>Daily <em>pageviews</em> for the matching article — people researching a brand/model.</td>
+        <td class="src-pro">Free, reliable, never rate-limited; real absolute numbers; regions via language editions.</td>
+        <td class="src-con">Only covers terms with a wiki article; lags ~1–2 days; research intent ≠ buying intent.</td>
+      </tr>
+      <tr>
+        <td>Reddit</td>
+        <td>Post volume weighted by engagement across sneaker/streetwear subreddits — community <em>buzz</em>.</td>
+        <td class="src-pro">Earliest signal of hype; captures culture &amp; sentiment before mainstream search.</td>
+        <td class="src-con">Requires your own API credentials (below); no geography; noisier, community-skewed.</td>
+      </tr>
+    </table>
+    <p class="text-dim text-sm">Note: <strong>Related Queries</strong> is a Google-search feature, so it's only available on the Google source. <strong>Region Compare</strong> works on Google and Wikipedia (by language), not Reddit.</p>
+  </div>
+
+  <!-- Reddit credentials -->
+  <div class="config-group">
+    <h3>Reddit API Credentials</h3>
+    <p class="text-dim text-sm" style="margin-bottom:10px">Reddit blocks anonymous access, so the Reddit source needs your own free app credentials. Create one at <a href="https://www.reddit.com/prefs/apps" target="_blank" style="color:var(--black)">reddit.com/prefs/apps</a> → <em>create app</em> → choose <strong>“script”</strong> → copy the client ID (under the app name) and the secret.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:560px">
+      <div>
+        <label style="font-size:.7rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--dim); display:block; margin-bottom:6px">Client ID</label>
+        <input type="text" id="reddit-client-id" placeholder="e.g. dQw4w9WgXcQ" style="width:100%" autocomplete="off">
+      </div>
+      <div>
+        <label style="font-size:.7rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--dim); display:block; margin-bottom:6px">Client Secret</label>
+        <input type="text" id="reddit-client-secret" placeholder="secret" style="width:100%" autocomplete="off">
+      </div>
+    </div>
+    <p class="text-dim" style="font-size:.7rem; margin-top:8px">Stored locally in config.json on your machine — never sent anywhere except Reddit.</p>
+  </div>
+
+  <hr class="divider">
 
   <div id="config-groups"></div>
 
@@ -736,24 +769,43 @@ select {
 const PALETTE = ['#1a56db','#c8391a','#1e7a3a','#b8850a','#7c3aab'];
 const PA = (i, a) => PALETTE[i % PALETTE.length] + Math.round(a * 255).toString(16).padStart(2, '0');
 
-let dashChart = null, compareChart = null, rcChart = null;
-let activeTimeframes = { dashboard: 'today 3-m', compare: 'today 3-m', related: 'today 3-m', 'region-compare': 'today 3-m' };
-let dashKeywords = [], compareKeywords = [], compareKws = [];
+let dashChart = null, rcChart = null;
+let activeTimeframes = { dashboard: 'today 3-m', related: 'today 3-m', 'region-compare': 'today 3-m' };
+let dashKeywords = [];
 let configData = {}, regionsList = [], selectedRcRegions = [];
+let activeSource = 'google';
+
+function setSource(s) {
+  activeSource = s;
+  document.querySelectorAll('#source-seg button').forEach(b =>
+    b.classList.toggle('active', b.dataset.source === s));
+}
+
+// Human-readable reason when a source can't serve a view
+function unavailableMessage(meta) {
+  const s = meta.source === 'wikipedia' ? 'Wikipedia' : meta.source === 'reddit' ? 'Reddit' : 'this source';
+  switch (meta.reason) {
+    case 'reddit_setup':      return `Reddit needs setup. Add your Reddit app credentials in Configure (05) to enable it.`;
+    case 'reddit_no_regions': return `Reddit has no geographic data, so Region Compare only works with Google Trends or Wikipedia (by language).`;
+    case 'related_google_only': return `Related queries come from Google search — switch the Data Source to Google Trends to use this view.`;
+    case 'rate_limit':        return `Google Trends is rate-limiting this IP. Wait a minute and retry.`;
+    case 'network':           return `The data source is unreachable right now. Check your connection and retry.`;
+    case 'empty':             return `No ${s} data found for these keyword(s). Try broader or better-known terms.`;
+    default:                  return `No data available from ${s} right now.`;
+  }
+}
 
 // ── Init ─────────────────────────────────────────────────────────
 async function init() {
   await Promise.all([loadRegions(), loadConfig()]);
   initTimeframeBars();
   initAC('dash-kw-input',    'dash-kw-ac',    kw => { addTagKw(kw, 'dash');    closeAC('dash-kw-ac');    });
-  initAC('compare-kw-input', 'compare-kw-ac', kw => { addTagKw(kw, 'compare'); closeAC('compare-kw-ac'); });
   initAC('rc-kw-input',      'rc-kw-ac',      kw => { document.getElementById('rc-kw-input').value = kw;      closeAC('rc-kw-ac');      });
   initAC('related-kw-input', 'related-kw-ac', kw => { document.getElementById('related-kw-input').value = kw; closeAC('related-kw-ac'); });
   document.addEventListener('keydown', e => {
     if (e.key !== 'Enter') return;
     const a = document.activeElement;
-    if (a.id === 'dash-kw-input')    addDashKeyword();
-    if (a.id === 'compare-kw-input') addCompareKeyword();
+    if (a.id === 'dash-kw-input') addDashKeyword();
   });
   document.addEventListener('click', e => {
     document.querySelectorAll('.ac-dropdown').forEach(d => {
@@ -785,13 +837,13 @@ function showView(name) {
   document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
   document.getElementById('view-' + name).classList.remove('hidden');
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  const idx = ['dashboard','compare','region-compare','breakout','related','config'].indexOf(name);
+  const idx = ['dashboard','region-compare','breakout','related','config'].indexOf(name);
   if (idx >= 0) document.querySelectorAll('.nav-link')[idx].classList.add('active');
 }
 
 // ── Regions ───────────────────────────────────────────────────────
 function renderRegionSelects() {
-  ['dash-region','compare-region'].forEach(id => {
+  ['dash-region'].forEach(id => {
     const sel = document.getElementById(id);
     sel.innerHTML = '<option value="">Global</option>';
     const groups = {};
@@ -845,20 +897,12 @@ function toggleRcChip(el) {
 function addTagKw(kw, view) {
   kw = kw.trim();
   if (!kw) return;
-  if (view === 'dash') {
-    if (dashKeywords.length >= 5 || dashKeywords.includes(kw)) return;
-    dashKeywords.push(kw);
-    renderTags('dash-tags', dashKeywords, 'dash');
-    document.getElementById('dash-kw-input').value = '';
-  } else {
-    if (compareKeywords.length >= 5 || compareKeywords.includes(kw)) return;
-    compareKeywords.push(kw);
-    renderTags('compare-tags', compareKeywords, 'compare');
-    document.getElementById('compare-kw-input').value = '';
-  }
+  if (dashKeywords.length >= 5 || dashKeywords.includes(kw)) return;
+  dashKeywords.push(kw);
+  renderTags('dash-tags', dashKeywords, 'dash');
+  document.getElementById('dash-kw-input').value = '';
 }
-function addDashKeyword()    { const v = document.getElementById('dash-kw-input').value.trim();    if (v) addTagKw(v, 'dash'); }
-function addCompareKeyword() { const v = document.getElementById('compare-kw-input').value.trim(); if (v) addTagKw(v, 'compare'); }
+function addDashKeyword() { const v = document.getElementById('dash-kw-input').value.trim(); if (v) addTagKw(v, 'dash'); }
 
 function renderTags(containerId, arr, view) {
   const c = document.getElementById(containerId);
@@ -868,8 +912,8 @@ function renderTags(containerId, arr, view) {
     chip.className = 'tag';
     chip.innerHTML = `${kw} <button type="button">×</button>`;
     chip.querySelector('button').addEventListener('click', () => {
-      if (view === 'dash') { dashKeywords.splice(i, 1); renderTags('dash-tags', dashKeywords, 'dash'); }
-      else { compareKeywords.splice(i, 1); renderTags('compare-tags', compareKeywords, 'compare'); }
+      dashKeywords.splice(i, 1);
+      renderTags('dash-tags', dashKeywords, 'dash');
     });
     c.appendChild(chip);
   });
@@ -958,18 +1002,23 @@ function handleErr(data) {
   if (data.rate_limited) showBanner('Google Trends rate limit reached. Wait 30–60 seconds, then retry.');
   else showBanner(data.error || 'Unknown error');
 }
-// Strip the _meta envelope; surface a notice if the data is synthetic sample data
+// Strip the _meta envelope; surface a notice about data source / sample state
 function splitMeta(d) {
   const meta = d._meta || null;
   const data = { ...d };
   delete data._meta;
+  const banner = document.getElementById('rate-limit-banner');
   if (meta && meta.sample) {
     const why = meta.reason === 'network'
       ? "Google Trends is unreachable right now"
       : "Google Trends is rate-limiting this IP";
     showBanner(`Showing SAMPLE data — ${why}. Real data will load automatically once it clears (usually a few minutes).`);
+  } else if (meta && meta.source === 'wikipedia') {
+    showBanner(`Live data from Wikipedia pageviews — values are relative daily article views (0–100), not Google searches.`);
+  } else if (meta && meta.source === 'reddit') {
+    showBanner(`Live data from Reddit — values reflect post volume weighted by engagement across sneaker/streetwear subreddits.`);
   } else {
-    document.getElementById('rate-limit-banner').style.display = 'none';
+    banner.style.display = 'none';
   }
   return data;
 }
@@ -981,39 +1030,21 @@ async function runDashboard() {
   const tf  = activeTimeframes['dashboard'];
   showL('dash-loading'); hide('dash-results');
   try {
-    const r = await postJSON('/api/trends', { keywords: dashKeywords, timeframe: tf, geo });
+    const r = await postJSON('/api/trends', { keywords: dashKeywords, timeframe: tf, geo, source: activeSource });
     const raw = await r.json();
     if (!r.ok) { handleErr(raw); return; }
+    if (raw._meta && raw._meta.unavailable) { showBanner(unavailableMessage(raw._meta)); hide('dash-results'); return; }
     const d = splitMeta(raw);
+    const kws = [...dashKeywords];
     renderMetrics('dash-metrics', d);
     show('dash-results');
     renderLine('dash-chart', d, v => { if(dashChart) dashChart.destroy(); dashChart = v; });
+    renderCompareTable('dash-table', d, kws);
+    document.getElementById('dash-ranking-wrap').style.display = kws.length > 1 ? 'block' : 'none';
     const tfLabel = document.querySelector('#view-dashboard .tf-btn.active')?.textContent || '3M';
     runAnalysis(d, 'dash-analysis-content', 'dash-analysis-loading', tfLabel, document.getElementById('group-select').value || 'Custom');
   } catch(e) { console.error(e); showBanner('Connection error — check your network and try again.'); }
   finally { hide('dash-loading'); }
-}
-
-// ── Compare ────────────────────────────────────────────────────────
-async function runCompare() {
-  compareKws = [...compareKeywords];
-  if (!compareKws.length) { alert('Add at least one keyword.'); return; }
-  const geo = document.getElementById('compare-region').value;
-  const tf  = activeTimeframes['compare'];
-  showL('compare-loading'); hide('compare-results');
-  try {
-    const r = await postJSON('/api/trends', { keywords: compareKws, timeframe: tf, geo });
-    const raw = await r.json();
-    if (!r.ok) { handleErr(raw); return; }
-    const d = splitMeta(raw);
-    renderMetrics('compare-metrics', d);
-    show('compare-results');
-    renderLine('compare-chart', d, v => { if(compareChart) compareChart.destroy(); compareChart = v; });
-    renderCompareTable(d, compareKws);
-    const tfLabel = document.querySelector('#view-compare .tf-btn.active')?.textContent || '3M';
-    runAnalysis(d, 'compare-analysis-content', 'compare-analysis-loading', tfLabel, 'Custom Compare');
-  } catch(e) { console.error(e); showBanner('Connection error — check your network and try again.'); }
-  finally { hide('compare-loading'); }
 }
 
 // ── Region Compare ─────────────────────────────────────────────────
@@ -1024,9 +1055,10 @@ async function runRegionCompare() {
   const tf = activeTimeframes['region-compare'];
   showL('rc-loading'); hide('rc-results');
   try {
-    const r = await postJSON('/api/region-compare', { keywords: [kw], timeframe: tf, geos: selectedRcRegions });
+    const r = await postJSON('/api/region-compare', { keywords: [kw], timeframe: tf, geos: selectedRcRegions, source: activeSource });
     const raw = await r.json();
     if (!r.ok) { handleErr(raw); return; }
+    if (raw._meta && raw._meta.unavailable) { showBanner(unavailableMessage(raw._meta)); hide('rc-results'); return; }
     const d = splitMeta(raw);
     show('rc-results');
     renderRegionCompare(d, kw);
@@ -1097,11 +1129,16 @@ function renderRegionCompare(data, kw) {
 async function runBreakout() {
   showL('breakout-loading'); hide('breakout-results');
   try {
-    const r = await postJSON('/api/breakout', {});
+    const r = await postJSON('/api/breakout', { source: activeSource });
     const d = await r.json();
     if (!r.ok) { handleErr(d); return; }
+    if (!Array.isArray(d) && d._meta && d._meta.unavailable) { showBanner(unavailableMessage(d._meta)); hide('breakout-results'); return; }
     const nSample = Array.isArray(d) ? d.filter(x => x.sample).length : 0;
-    if (nSample === d.length && nSample > 0) {
+    if (activeSource === 'wikipedia') {
+      showBanner('Breakout momentum from Wikipedia pageviews — each term on its own scale.');
+    } else if (activeSource === 'reddit') {
+      showBanner('Breakout momentum from Reddit post volume across sneaker/streetwear subreddits.');
+    } else if (nSample === d.length && nSample > 0) {
       showBanner('Showing SAMPLE data — Google Trends is rate-limiting this IP. Real data will load once it clears.');
     } else if (nSample > 0) {
       showBanner(`${nSample} of ${d.length} keywords fell back to sample data (Google rate-limited a few requests). The rest is live. Re-scan in a minute for all-real data.`);
@@ -1162,13 +1199,32 @@ async function runRelated() {
   const tf = activeTimeframes['related'];
   showL('related-loading'); hide('related-results');
   try {
-    const r = await postJSON('/api/related', { keyword: kw, timeframe: tf });
+    const r = await postJSON('/api/related', { keyword: kw, timeframe: tf, source: activeSource });
     const d = await r.json();
     if (!r.ok) { handleErr(d); return; }
-    renderRelatedTable('related-rising-table', d.rising, true);
-    renderRelatedTable('related-top-table',    d.top,    false);
+    document.getElementById('rate-limit-banner').style.display = 'none';
+    // Real data only — if none is available, show a clear unavailable state.
+    if (d._meta && d._meta.unavailable) {
+      const why = d._meta.reason === 'related_google_only'
+        ? "Related queries come from Google search. Switch the Data Source to Google Trends (sidebar) to use this view"
+        : d._meta.reason === 'rate_limit'
+        ? "Google Trends is rate-limiting this IP right now"
+        : d._meta.reason === 'network'
+        ? "Google Trends is unreachable right now"
+        : "Google returned no related-query data for this keyword";
+      const head = d._meta.reason === 'related_google_only' ? 'Google Trends only' : 'No live related data';
+      document.getElementById('related-unavailable').innerHTML =
+        `<strong style="display:block; font-family:var(--serif); font-size:1.2rem; color:var(--black); font-weight:400; margin-bottom:6px">${head}</strong>${why}.`;
+      show('related-unavailable');
+      hide('related-tables');
+    } else {
+      hide('related-unavailable');
+      show('related-tables');
+      renderRelatedTable('related-rising-table', d.rising, true);
+      renderRelatedTable('related-top-table',    d.top,    false);
+    }
     show('related-results');
-  } catch(e) { console.error(e); }
+  } catch(e) { console.error(e); showBanner('Connection error — check your network and try again.'); }
   finally { hide('related-loading'); }
 }
 
@@ -1195,6 +1251,9 @@ function renderConfigForm() {
       <textarea class="config-textarea" data-group="${g}" rows="2">${kws.join(', ')}</textarea>
     </div>`).join('');
   document.getElementById('config-micro').value = (configData.micro_trends || []).join('\n');
+  const rc = configData.reddit_credentials || {};
+  document.getElementById('reddit-client-id').value = rc.client_id || '';
+  document.getElementById('reddit-client-secret').value = rc.client_secret || '';
 }
 
 async function saveConfig() {
@@ -1204,6 +1263,10 @@ async function saveConfig() {
   });
   configData.keyword_groups = groups;
   configData.micro_trends = document.getElementById('config-micro').value.split('\n').map(s => s.trim()).filter(Boolean);
+  configData.reddit_credentials = {
+    client_id: document.getElementById('reddit-client-id').value.trim(),
+    client_secret: document.getElementById('reddit-client-secret').value.trim(),
+  };
   await postJSON('/api/config', configData);
   populateGroupSelect();
   const s = document.getElementById('config-status'); s.textContent = 'Saved ✓';
@@ -1269,9 +1332,9 @@ function renderLine(canvasId, data, setter) {
   setter(chart);
 }
 
-// ── Compare table ──────────────────────────────────────────────────
-function renderCompareTable(data, kws) {
-  document.getElementById('compare-table').innerHTML = `
+// ── Ranking table (keyword head-to-head) ───────────────────────────
+function renderCompareTable(tableId, data, kws) {
+  document.getElementById(tableId).innerHTML = `
     <tr><th>Keyword</th><th>Current</th><th>Peak</th><th>Avg</th><th>Trend</th></tr>
     ${kws.map((kw, i) => {
       const d = data[kw];

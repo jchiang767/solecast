@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request, send_from_directory
 from pytrends.request import TrendReq
 import json, os, time, hashlib, math
+import requests
+from urllib.parse import quote as _urlquote
 
 # ── Aggregate region definitions ──────────────────────────────────────────
 AGGREGATE_REGIONS = {
@@ -59,6 +61,40 @@ SNEAKER_TERMS = [
     "collab sneakers","sneaker drop","sneaker release","sneaker resale","heat sneakers",
     "luxury sneakers","designer sneakers","streetwear sneakers","running shoe trend",
     "performance sneaker","carbon plate shoe","super shoe","plated trainer",
+
+    # ── Outdoor / gorpcore / technical apparel ──
+    "And Wander","Gramicci","Snow Peak","Arc'teryx","Patagonia","ROA","Satisfy Running",
+    "Nike ACG","Klättermusen","Norda","Ciele","District Vision","Post Archive Faction","PAF",
+    "Goldwin","Montbell","The North Face","Purple Label","Veilance","Battenwear","Manastash",
+    "Cayl","Amiacalva","Norse Projects","Salomon Advanced","Comfy Outdoor Garment","Nanga",
+
+    # ── Avant-garde / designer ──
+    "Comme des Garcons","CDG","Junya Watanabe","Undercover","Sacai","Kiko Kostadinov",
+    "Our Legacy","Lemaire","The Row","Loewe","Jil Sander","Dries Van Noten",
+    "Ann Demeulemeester","Raf Simons","Helmut Lang","Issey Miyake","Homme Plisse",
+    "Auralee","Stone Island","CP Company","Acronym","Bottega Veneta","Margiela",
+
+    # ── Streetwear / contemporary ──
+    "Aimé Leon Dore","Kith","Corteiz","Sp5der","Denim Tears","Awake NY","Cav Empt",
+    "Brain Dead","Online Ceramics","Noah","Bode","Kapital","Needles","Human Made",
+    "Wtaps","Neighborhood","Carhartt WIP","Represent","Fear of God","Essentials",
+    "Cactus Plant Flea Market","Rhude","Gallery Dept","Chrome Hearts","Amiri","Nahmias",
+
+    # ── Emerging / niche labels ──
+    "San San Gear","Story mfg","Nicholas Daley","Bstroy","Rayon Vert","GR10K","Hyein Seo",
+    "Martine Rose","Wales Bonner","Bianca Saunders","Adish","Kartik Research","Cottweiler",
+    "Reese Cooper","Song for the Mute","Camiel Fortgens","Rier","Séfr","Namacheko",
+    "Winnie New York","Paloma Wool","Kartik","Diet Starts Monday",
+
+    # ── Aesthetics / trends ──
+    "gorpcore","blokecore","techwear","tenniscore","quiet luxury","y2k fashion",
+    "opium fashion","indie sleaze","coquette","avant basic","normcore","workwear",
+    "americana","cottagecore","balletcore","mob wife aesthetic","office siren","boho revival",
+
+    # ── Apparel items ──
+    "baggy cargo pants","parachute pants","balaclava","fleece jacket","shell jacket",
+    "hiking pants","tabi boots","mary janes","carpenter pants","down jacket","technical vest",
+    "jorts","mesh flats","leg warmers","selvedge denim","baggy jeans","hiking outfit",
 ]
 
 # ── App setup ─────────────────────────────────────────────────────────────
@@ -167,6 +203,308 @@ def _generate_sample_data(keywords, timeframe, seed_extra=""):
         }
     return result
 
+# Cultural adjacencies for trend discovery — the *other* brands, aesthetics,
+# apparel, and collabs someone searching a given term also gravitates toward.
+# Keyed on lowercase substrings; a keyword matches if it contains the key.
+RELATED_ADJACENCY = {
+    "salomon":        ["roa hiking", "arc'teryx", "hoka", "baggy cargo pants", "gorpcore", "and wander", "trail running shoes", "salomon xt-6", "techwear", "hiking outfit"],
+    "xt-6":           ["salomon", "roa hiking", "gorpcore", "arc'teryx", "trail sneakers", "techwear"],
+    "hoka":           ["salomon", "on running", "gorpcore", "trail running", "asics gel", "recovery slides", "running outfit"],
+    "arc":            ["salomon", "gorpcore", "techwear", "and wander", "veilance", "goretex jacket", "patagonia", "hiking outfit"],
+    "on running":     ["cloudmonster", "hoka", "salomon", "roger federer", "gorpcore", "cloudtilt", "running outfit"],
+    "new balance 550":["aimé leon dore", "new balance 650", "prep style", "joe freshgoods", "grey sweatpants", "miu miu new balance"],
+    "new balance 990":["dad shoes", "new balance 991", "made in usa", "grey new balance", "normcore", "miu miu collab"],
+    "new balance":    ["aimé leon dore", "dad shoes", "grey new balance", "joe freshgoods", "miu miu collab", "1906r", "gorpcore", "prep style"],
+    "samba":          ["adidas gazelle", "blokecore", "wales bonner", "sporty and rich", "terrace culture", "vintage adidas", "handball spezial", "tonal outfit"],
+    "gazelle":        ["adidas samba", "blokecore", "handball spezial", "vintage adidas", "indie sleaze", "wales bonner"],
+    "spezial":        ["adidas samba", "blokecore", "terrace culture", "wales bonner", "vintage adidas"],
+    "adidas":         ["samba", "gazelle", "spezial", "wales bonner", "blokecore", "terrace culture", "yeezy slides", "sporty and rich"],
+    "yeezy":          ["yeezy slides", "foam runner", "adidas samba", "resale", "350 v2", "onyx"],
+    "jordan 1":       ["travis scott", "off white jordan", "chicago lost and found", "fragment", "jordan 1 outfit", "unc toe"],
+    "jordan 4":       ["travis scott", "a ma maniere", "military black", "bred", "jordan 4 outfit", "retro jordans"],
+    "jordan":         ["travis scott", "off white", "a ma maniere", "union la", "retro jordans", "sneaker resale", "nike sb"],
+    "dunk":           ["panda dunk", "nike sb", "off white dunk", "skate shoes", "cacao wow", "dunk outfit"],
+    "air force 1":    ["white sneakers", "nocta", "louis vuitton af1", "classic sneakers", "af1 outfit"],
+    "air max":        ["air max plus", "tn", "y2k sneakers", "supreme air max", "corteiz", "running outfit"],
+    "vomero":         ["nike vomero 5", "gorpcore", "y2k sneakers", "dad shoes", "p-6000", "chunky sneakers"],
+    "converse":       ["chuck 70", "comme des garcons play", "vintage converse", "skate style", "indie sleaze"],
+    "vans":           ["knu skool", "baggy jeans", "skate style", "old skool outfit", "checkerboard", "indie"],
+    "asics":          ["gel kayano 14", "gorpcore", "cecilie bahnsen asics", "onitsuka tiger", "y2k sneakers", "metallic sneakers"],
+    "onitsuka":       ["mexico 66", "kill bill", "y2k fashion", "asics", "tabi", "onitsuka outfit"],
+    "puma":           ["puma speedcat", "low profile sneakers", "sleek sneakers", "f1 fashion", "rihanna fenty", "puma mostro"],
+    "speedcat":       ["low profile sneakers", "sleek sneakers", "puma mostro", "y2k sneakers", "skinny sneakers", "ballet flats"],
+    "margiela":       ["tabi", "german army trainer", "replica sneakers", "mm6", "quiet luxury", "gat"],
+    "tabi":           ["margiela tabi", "split toe", "tabi ballet flats", "avant garde fashion", "mary janes"],
+    "birkenstock":    ["boston clog", "clogs", "arizona", "socks and sandals", "gorpcore", "quiet luxury"],
+    "crocs":          ["crocs platform", "jibbitz", "clogs", "salehe bembury crocs", "pollex"],
+    "salehe":         ["new balance 2002r", "crocs pollex", "spunge", "gorpcore", "vibram", "yeezy foam runner"],
+    "common projects":["quiet luxury", "minimalist sneakers", "achilles low", "leather sneakers", "the row", "margiela gat"],
+    "golden goose":   ["distressed sneakers", "quiet luxury", "italian sneakers", "superstar", "designer sneakers"],
+    "nike":           ["air force 1", "dunk low", "vomero 5", "travis scott nike", "nocta", "p-6000", "gorpcore", "y2k sneakers"],
+}
+
+# Broad trend/aesthetic terms used for discovery breadth and as a fallback
+GENERAL_TREND_POOL = ["gorpcore", "blokecore", "quiet luxury", "y2k sneakers", "baggy cargo pants",
+                      "dad shoes", "ballet flats", "sneaker resale", "vintage sneakers",
+                      "sporty and rich", "aimé leon dore", "trending outfits 2026"]
+
+# Aesthetic clusters — if the keyword *is* a trend rather than a shoe
+AESTHETIC_CLUSTERS = {
+    "gorpcore":   ["salomon", "arc'teryx", "hoka", "baggy cargo pants", "roa hiking", "and wander", "trail sneakers", "hiking outfit"],
+    "blokecore":  ["adidas samba", "football jersey", "terrace culture", "vintage adidas", "gazelle", "wales bonner"],
+    "tenniscore": ["sporty and rich", "tennis skirt", "adidas stan smith", "pleated skirt", "polo ralph lauren", "wimbledon style"],
+    "techwear":   ["acronym", "arc'teryx veilance", "salomon", "cargo pants", "goretex", "stone island"],
+    "dad shoe":   ["new balance 990", "asics gel", "vomero 5", "normcore", "chunky sneakers"],
+    "ballet flat":["puma speedcat", "mary janes", "sandy liang", "alaia", "coquette", "mesh flats"],
+}
+
+def _related_pool(keyword):
+    kwl = keyword.strip().lower()
+    pool = []
+    for key, terms in {**RELATED_ADJACENCY, **AESTHETIC_CLUSTERS}.items():
+        if key in kwl:
+            pool.extend(terms)
+    if not pool:
+        pool = list(GENERAL_TREND_POOL)
+    pool.extend(GENERAL_TREND_POOL[:3])   # sprinkle discovery breadth
+    seen, out = set(), []
+    for t in pool:
+        tl = t.lower()
+        if tl in seen or tl == kwl:
+            continue
+        seen.add(tl)
+        out.append(t)
+    return out
+
+def _generate_sample_related(keyword):
+    """Trend-discovery related queries: culturally adjacent brands, aesthetics,
+    and items — not '{keyword} + modifier' noise. Used when Google returns nothing."""
+    pool = _related_pool(keyword)
+
+    rng = _random.Random(_stable_seed(keyword, 'related-rising'))
+    rising_order = pool[:]
+    rng.shuffle(rising_order)
+    rising = []
+    for i, q in enumerate(rising_order[:8]):
+        val = "Breakout" if i < 3 else rng.choice([320, 250, 190, 140, 110, 80])
+        rising.append({"query": q, "value": val})
+
+    rng2 = _random.Random(_stable_seed(keyword, 'related-top'))
+    top_order = pool[:]
+    rng2.shuffle(top_order)
+    top, base = [], 100
+    for q in top_order[:8]:
+        top.append({"query": q, "value": base})
+        base = max(6, base - rng2.randint(8, 19))
+
+    return {"rising": rising, "top": top}
+
+# ══════════════════════════════════════════════════════════════════════════
+# ALTERNATIVE DATA SOURCES — Wikipedia Pageviews & Reddit
+# Both return the SAME shape as Google Trends: {kw: {dates, values(0-100),
+# current, peak, avg, trend, ...}} so all existing rendering/analysis works.
+# ══════════════════════════════════════════════════════════════════════════
+WIKI_UA = {"User-Agent": "SolecastTrends/1.0 (contact: joshuasee00@gmail.com)"}
+REDDIT_UA = "SolecastTrends/1.0 (trend research app)"
+
+# Region geo code → Wikipedia language project (imperfect: language ≠ country)
+WIKI_PROJECT_BY_GEO = {
+    "": "en.wikipedia", "US": "en.wikipedia", "GB": "en.wikipedia", "AU": "en.wikipedia",
+    "DE": "de.wikipedia", "FR": "fr.wikipedia", "IT": "it.wikipedia",
+    "JP": "ja.wikipedia", "KR": "ko.wikipedia", "BR": "pt.wikipedia", "MX": "es.wikipedia",
+    "HK": "zh.wikipedia", "TW": "zh.wikipedia",
+}
+
+def _timeframe_days(timeframe):
+    return {"now 7-d": 7, "today 1-m": 30, "today 3-m": 90,
+            "today 12-m": 365, "today 5-y": 1825}.get(timeframe, 90)
+
+def _date_axis(timeframe, monthly=False):
+    """Continuous date labels covering the timeframe (daily or monthly)."""
+    n = _timeframe_days(timeframe)
+    end = _dt.now().date()
+    if monthly:
+        # first-of-month labels back far enough to cover n days
+        months = max(2, n // 30)
+        labels = []
+        y, m = end.year, end.month
+        for _ in range(months):
+            labels.append(f"{y:04d}-{m:02d}-01")
+            m -= 1
+            if m == 0: m = 12; y -= 1
+        return list(reversed(labels))
+    return [str(end - _td(days=i)) for i in range(n - 1, -1, -1)]
+
+# ── Wikipedia ─────────────────────────────────────────────────────────────
+def _wiki_article(keyword, project="en.wikipedia"):
+    lang = project.split(".")[0]
+    try:
+        r = requests.get(f"https://{lang}.wikipedia.org/w/api.php", params={
+            "action": "query", "list": "search", "srsearch": keyword,
+            "format": "json", "srlimit": 1
+        }, headers=WIKI_UA, timeout=10)
+        hits = r.json().get("query", {}).get("search", [])
+        return (hits[0]["title"].replace(" ", "_"), hits[0]["title"]) if hits else None
+    except Exception:
+        return None
+
+def _wiki_series(keyword, timeframe, project="en.wikipedia"):
+    art = _wiki_article(keyword, project)
+    if not art:
+        return None
+    article, title = art
+    n = _timeframe_days(timeframe)
+    monthly = n > 200
+    gran = "monthly" if monthly else "daily"
+    end = _dt.now()
+    start = end - _td(days=n)
+    url = (f"https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/"
+           f"{project}/all-access/user/{_urlquote(article, safe='')}/{gran}/"
+           f"{start.strftime('%Y%m%d')}/{end.strftime('%Y%m%d')}")
+    try:
+        r = requests.get(url, headers=WIKI_UA, timeout=12)
+        if r.status_code != 200:
+            return None
+        items = r.json().get("items", [])
+    except Exception:
+        return None
+    if not items:
+        return None
+    # keep the ACTUAL dates Wikipedia has data for (it lags ~1–2 days, so we
+    # don't want to pad up to "today" with fake zeros → misleading current=0)
+    by_date = {}
+    for it in items:
+        ts = it["timestamp"]
+        d = f"{ts[:4]}-{ts[4:6]}-01" if monthly else f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}"
+        by_date[d] = it["views"]
+    return {"title": title, "by_date": by_date}
+
+def _fetch_wikipedia(keywords, timeframe, geo=""):
+    project = WIKI_PROJECT_BY_GEO.get(geo, "en.wikipedia")
+    raw = {}
+    for kw in keywords:
+        s = _wiki_series(kw, timeframe, project)
+        if s:
+            raw[kw] = s
+    if not raw:
+        return None
+    # common date axis = union of all dates any keyword actually has data for
+    all_dates = sorted({d for s in raw.values() for d in s["by_date"]})
+    gmax = max((max(s["by_date"].values()) for s in raw.values()), default=1) or 1
+    result = {}
+    for kw, s in raw.items():
+        vals   = [s["by_date"].get(d, 0) for d in all_dates]
+        scaled = [round(v / gmax * 100) for v in vals]
+        result[kw] = {
+            "dates": all_dates, "values": scaled,
+            "current": scaled[-1] if scaled else 0,
+            "peak": max(scaled) if scaled else 0,
+            "avg": round(sum(scaled) / len(scaled), 1) if scaled else 0,
+            "trend": _calc_trend(scaled),
+            "raw_peak": max(vals) if vals else 0,
+            "wiki_title": s["title"], "cached": False,
+        }
+    return result
+
+# ── Reddit (requires user's own app credentials) ──────────────────────────
+_reddit_token_cache = {"token": None, "exp": 0}
+
+def _reddit_token():
+    creds = load_config().get("reddit_credentials", {})
+    cid, secret = creds.get("client_id", ""), creds.get("client_secret", "")
+    if not cid or not secret:
+        return None
+    if _reddit_token_cache["token"] and _reddit_token_cache["exp"] > time.time():
+        return _reddit_token_cache["token"]
+    try:
+        r = requests.post("https://www.reddit.com/api/v1/access_token",
+                          auth=(cid, secret), data={"grant_type": "client_credentials"},
+                          headers={"User-Agent": REDDIT_UA}, timeout=10)
+        if r.status_code != 200:
+            return None
+        j = r.json()
+        tok = j.get("access_token")
+        _reddit_token_cache["token"] = tok
+        _reddit_token_cache["exp"] = time.time() + j.get("expires_in", 3600) - 60
+        return tok
+    except Exception:
+        return None
+
+def _reddit_search_posts(keyword, timeframe, token):
+    t = {"now 7-d": "week", "today 1-m": "month", "today 3-m": "month",
+         "today 12-m": "year", "today 5-y": "all"}.get(timeframe, "month")
+    headers = {"Authorization": f"bearer {token}", "User-Agent": REDDIT_UA}
+    posts, after = [], None
+    for _ in range(4):   # up to ~400 posts
+        params = {"q": keyword, "sort": "new", "limit": 100, "t": t, "type": "link"}
+        if after:
+            params["after"] = after
+        try:
+            r = requests.get("https://oauth.reddit.com/search", params=params,
+                             headers=headers, timeout=12)
+            if r.status_code != 200:
+                break
+            data = r.json().get("data", {})
+        except Exception:
+            break
+        posts += [c["data"] for c in data.get("children", [])]
+        after = data.get("after")
+        if not after:
+            break
+    return posts
+
+def _fetch_reddit(keywords, timeframe, geo=""):
+    token = _reddit_token()
+    if not token:
+        return {"_error": "reddit_setup"}
+    monthly = _timeframe_days(timeframe) > 200
+    axis = _date_axis(timeframe, monthly=monthly)
+    raw = {}
+    for kw in keywords:
+        posts = _reddit_search_posts(kw, timeframe, token)
+        buckets = {d: 0 for d in axis}
+        for p in posts:
+            d = _dt.utcfromtimestamp(p.get("created_utc", 0)).date()
+            key = f"{d.year:04d}-{d.month:02d}-01" if monthly else str(d)
+            if key in buckets:
+                # weight by engagement so a viral post counts more than a dead one
+                buckets[key] += 1 + math.log1p(max(0, p.get("score", 0)) + max(0, p.get("num_comments", 0)))
+        raw[kw] = [buckets[d] for d in axis]
+        time.sleep(0.3)
+    if all(sum(v) == 0 for v in raw.values()):
+        return None
+    gmax = max((max(v) for v in raw.values() if v), default=1) or 1
+    result = {}
+    for kw, vals in raw.items():
+        scaled = [round(v / gmax * 100) for v in vals]
+        result[kw] = {
+            "dates": axis, "values": scaled,
+            "current": scaled[-1] if scaled else 0,
+            "peak": max(scaled) if scaled else 0,
+            "avg": round(sum(scaled) / len(scaled), 1) if scaled else 0,
+            "trend": _calc_trend(scaled), "cached": False,
+        }
+    return result
+
+# ── Unified dispatcher ────────────────────────────────────────────────────
+def _fetch_by_source(keywords, timeframe, geo, source):
+    """Returns (result_dict, meta_dict). Google keeps its sample fallback;
+    Wikipedia/Reddit are real-only with clear unavailable/setup states."""
+    if source == "wikipedia":
+        data = _fetch_wikipedia(keywords, timeframe, geo)
+        if not data:
+            return None, {"unavailable": True, "reason": "empty", "source": "wikipedia"}
+        return data, {"source": "wikipedia"}
+    if source == "reddit":
+        data = _fetch_reddit(keywords, timeframe, geo)
+        if isinstance(data, dict) and data.get("_error") == "reddit_setup":
+            return None, {"unavailable": True, "reason": "reddit_setup", "source": "reddit"}
+        if not data:
+            return None, {"unavailable": True, "reason": "empty", "source": "reddit"}
+        return data, {"source": "reddit"}
+    # google (default) — with sample fallback handled by caller
+    return "google", {"source": "google"}
+
 DEFAULT_CONFIG = {
     "keyword_groups": {
         "Classic Silhouettes": ["Air Force 1", "Chuck Taylor", "Stan Smith", "New Balance 990", "Gazelle"],
@@ -182,7 +520,8 @@ DEFAULT_CONFIG = {
         "3M": "today 3-m",
         "12M": "today 12-m",
         "5Y": "today 5-y"
-    }
+    },
+    "reddit_credentials": {"client_id": "", "client_secret": ""}
 }
 
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'config.json')
@@ -190,7 +529,11 @@ CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'config.json')
 def load_config():
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE) as f:
-            return json.load(f)
+            cfg = json.load(f)
+        # backfill any keys added after this config was first saved
+        for k, v in DEFAULT_CONFIG.items():
+            cfg.setdefault(k, v)
+        return cfg
     return DEFAULT_CONFIG
 
 def save_config(cfg):
@@ -211,8 +554,14 @@ def suggest():
     q = request.args.get('q', '').strip().lower()
     if not q or len(q) < 2:
         return jsonify([])
+    # Case-insensitive dedupe of curated matches (the term list has some overlaps)
+    _seen_lc, _matches = set(), []
+    for t in SNEAKER_TERMS:
+        if q in t.lower() and t.lower() not in _seen_lc:
+            _seen_lc.add(t.lower())
+            _matches.append(t)
     curated = sorted(
-        [t for t in SNEAKER_TERMS if q in t.lower()],
+        _matches,
         key=lambda t: (not t.lower().startswith(q), t.lower())
     )[:6]
     key = _cache_key('suggest', q)
@@ -253,8 +602,15 @@ def get_trends():
     keywords = [k.strip() for k in body.get('keywords', []) if k.strip()][:5]
     timeframe = body.get('timeframe', 'today 3-m')
     geo = body.get('geo', '')
+    source = body.get('source', 'google')
     if not keywords:
         return jsonify({"error": "No keywords provided"}), 400
+    # Alternative sources (Wikipedia / Reddit) — real data only
+    if source in ('wikipedia', 'reddit'):
+        data, meta = _fetch_by_source(keywords, timeframe, geo, source)
+        if data is None:
+            return jsonify({"_meta": meta})
+        return jsonify({**data, "_meta": meta})
     if geo in AGGREGATE_REGIONS:
         return _get_trends_aggregate(keywords, timeframe, geo)
     try:
@@ -278,8 +634,27 @@ def region_compare():
     keywords = [k.strip() for k in body.get('keywords', []) if k.strip()][:5]
     timeframe = body.get('timeframe', 'today 3-m')
     geos = body.get('geos', [])   # list of {label, geo}
+    source = body.get('source', 'google')
     if not keywords or not geos:
         return jsonify({"error": "Provide keywords and at least one region"}), 400
+
+    # Reddit has no geography → not supported for regional comparison
+    if source == 'reddit':
+        return jsonify({"_meta": {"unavailable": True, "reason": "reddit_no_regions", "source": "reddit"}})
+
+    # Wikipedia: each "region" maps to a language edition (imperfect but real)
+    if source == 'wikipedia':
+        results = {}
+        for region in geos[:6]:
+            label = region.get('label', region.get('geo', ''))
+            geo   = region.get('geo', '')
+            data = _fetch_wikipedia(keywords, timeframe, geo)
+            if data:
+                results[label] = data
+        if not results:
+            return jsonify({"_meta": {"unavailable": True, "reason": "empty", "source": "wikipedia"}})
+        results["_meta"] = {"source": "wikipedia"}
+        return jsonify(results)
 
     results = {}
     used_sample = False
@@ -343,8 +718,12 @@ def get_related():
     body = request.json
     keyword  = body.get('keyword', '').strip()
     timeframe = body.get('timeframe', 'today 3-m')
+    source = body.get('source', 'google')
     if not keyword:
         return jsonify({"error": "No keyword provided"}), 400
+    # "Related queries" is a Google-search concept; other sources don't have it
+    if source in ('wikipedia', 'reddit'):
+        return jsonify({"rising": [], "top": [], "_meta": {"unavailable": True, "reason": "related_google_only", "source": source}})
     key = _cache_key('related', keyword, timeframe)
     cached = _cache_get(key)
     if cached:
@@ -359,14 +738,18 @@ def get_related():
                 rising = rel[keyword]['rising'].head(10).to_dict('records')
             if rel[keyword]['top'] is not None:
                 top = rel[keyword]['top'].head(10).to_dict('records')
+        # Related is REAL-DATA-ONLY (no sample fallback). Google frequently
+        # returns an empty related_queries payload (they broke that endpoint);
+        # when that happens we report it as unavailable rather than faking it.
+        if not rising and not top:
+            return jsonify({"rising": [], "top": [], "_meta": {"unavailable": True, "reason": "empty"}})
         result = {"rising": rising, "top": top}
         _cache_set(key, result)
         return jsonify(result)
     except Exception as e:
         msg = str(e)
-        if '429' in msg or 'Too Many' in msg:
-            return jsonify({"error": "Rate limited. Wait 30–60s.", "rate_limited": True}), 429
-        return jsonify({"error": msg}), 500
+        reason = "rate_limit" if ('429' in msg or 'Too Many' in msg) else "network"
+        return jsonify({"rising": [], "top": [], "_meta": {"unavailable": True, "reason": reason}})
 
 def _momentum_of(series):
     """Second-half average minus first-half average. `+ 0.0` kills negative zero."""
@@ -381,7 +764,29 @@ def _momentum_of(series):
 def get_breakout():
     body = request.json
     keywords = [k.strip() for k in (body.get('keywords') or load_config().get('micro_trends', [])) if k.strip()]
+    source = body.get('source', 'google')
     results = []
+
+    # Alternative sources: fetch each keyword on its own scale, compute momentum
+    if source in ('wikipedia', 'reddit'):
+        fetch = _fetch_wikipedia if source == 'wikipedia' else _fetch_reddit
+        for kw in keywords:
+            data = fetch([kw], 'today 3-m', '')
+            if isinstance(data, dict) and data.get('_error') == 'reddit_setup':
+                return jsonify({"_meta": {"unavailable": True, "reason": "reddit_setup", "source": source}})
+            if not data or kw not in data:
+                continue
+            d = data[kw]
+            results.append({
+                "keyword": kw, "current": d['current'],
+                "momentum": _momentum_of(d['values']), "values": d['values'],
+                "dates": d['dates'], "sample": False,
+            })
+        if not results:
+            return jsonify({"_meta": {"unavailable": True, "reason": "empty", "source": source}})
+        results.sort(key=lambda x: x['momentum'], reverse=True)
+        return jsonify(results)
+
     # Query EACH keyword on its own 0–100 scale so a high-volume term can't
     # crush a low-volume one to zero. This makes momentum a true, comparable
     # measure of each keyword's own trajectory (real breakout detection).
