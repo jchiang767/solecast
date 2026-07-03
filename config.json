@@ -1,0 +1,56 @@
+{
+  "keyword_groups": {
+    "Classic Silhouettes": [
+      "Air Force 1",
+      "Chuck Taylor",
+      "Stan Smith",
+      "New Balance 990",
+      "Gazelle"
+    ],
+    "Hype/Collabs": [
+      "Travis Scott Jordan",
+      "Off White Nike",
+      "Yeezy",
+      "Dunk SB",
+      "New Balance collabs"
+    ],
+    "Luxury/Designer": [
+      "Balenciaga sneakers",
+      "Common Projects",
+      "Golden Goose",
+      "Maison Margiela sneakers",
+      "Salehe Bembury"
+    ],
+    "Performance Running": [
+      "Brooks Ghost",
+      "ASICS Gel-Kayano",
+      "Nike Pegasus",
+      "Adidas Ultraboost",
+      "Saucony Kinvara"
+    ],
+    "Retro/Vintage": [
+      "New Balance 550",
+      "Samba",
+      "Onitsuka Tiger",
+      "Reebok Classic",
+      "Diadora"
+    ]
+  },
+  "micro_trends": [
+    "gorpcore",
+    "tenniscore shoes",
+    "ballet flat",
+    "Salomon",
+    "minimalist sneakers",
+    "hiking boots",
+    "tabis",
+    "heydudes"
+  ],
+  "timeframes": {
+    "12M": "today 12-m",
+    "1M": "today 1-m",
+    "1W": "now 7-d",
+    "3M": "today 3-m",
+    "5Y": "today 5-y"
+  }
+}

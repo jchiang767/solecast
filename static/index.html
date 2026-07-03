@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Solecast — Sneaker Trend Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── Reset & base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --black:      #0d0d0d;
+  --white:      #f6f5f1;
+  --rule:       #ccc9c2;
+  --dim:        #6b6860;
+  --mid:        #a8a49c;
+  --ink:        #1a1a18;
+  --surface:    #f0ede7;
+  --c0: #1a56db;
+  --c1: #c8391a;
+  --c2: #1e7a3a;
+  --c3: #b8850a;
+  --c4: #7c3aab;
+  --rising:     #1e7a3a;
+  --falling:    #b83222;
+  --stable:     #6b6860;
+  --serif:      'Abril Fatface', Georgia, serif;
+  --sans:       'Lato', system-ui, sans-serif;
+}
+html { font-size: 16px; }
+body {
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--sans);
+  font-weight: 400;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+/* ── Layout ───────────────────────────────────────────────────── */
+.shell { display: flex; min-height: 100vh; }
+nav {
+  width: 200px; flex-shrink: 0;
+  border-right: 1px solid var(--rule);
+  padding: 40px 0;
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh;
+  background: var(--white);
+  overflow-y: auto;
+}
+main {
+  flex: 1;
+  padding: 48px 52px;
+  max-width: 1200px;
+}
+
+/* ── Nav ──────────────────────────────────────────────────────── */
+.nav-logo {
+  padding: 0 28px 32px;
+  border-bottom: 1px solid var(--rule);
+}
+.nav-logo h1 {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  letter-spacing: .02em;
+  line-height: 1;
+}
+.nav-logo p {
+  font-size: .65rem;
+  color: var(--dim);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-top: 4px;
+  font-weight: 700;
+}
+.nav-links { padding: 24px 0; flex: 1; }
+.nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 28px;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  color: var(--dim);
+  cursor: pointer;
+  border: none; background: none; width: 100%; text-align: left;
+  transition: color .15s;
+  position: relative;
+}
+.nav-link .nav-num {
+  font-family: var(--sans);
+  font-size: .68rem;
+  font-weight: 300;
+  letter-spacing: 0;
+  color: var(--mid);
+}
+.nav-link:hover { color: var(--black); }
+.nav-link.active { color: var(--black); }
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 2px; height: 22px;
+  background: var(--black);
+  border-radius: 0 2px 2px 0;
+}
+
+/* ── Rate-limit banner ────────────────────────────────────────── */
+#rate-limit-banner {
+  display: none;
+  background: var(--black); color: var(--white);
+  padding: 10px 20px; font-size: .82rem;
+  align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 28px;
+}
+#rate-limit-banner button {
+  background: var(--white); color: var(--black);
+  border: none; padding: 5px 14px;
+  font-size: .75rem; font-family: var(--sans); font-weight: 700;
+  cursor: pointer; letter-spacing: .08em; text-transform: uppercase;
+}
+
+/* ── View header ──────────────────────────────────────────────── */
+.view-header { margin-bottom: 36px; }
+.view-header h2 {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: .01em;
+  margin-bottom: 8px;
+}
+.view-header p {
+  font-size: .88rem;
+  color: var(--dim);
+  max-width: 640px;
+  line-height: 1.7;
+}
+.view-meta {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 6px;
+}
+
+/* ── Section labels ───────────────────────────────────────────── */
+.section-title {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  margin-bottom: 14px;
+}
+.section-label {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 12px;
+}
+
+/* ── Dividers ─────────────────────────────────────────────────── */
+.divider { border: none; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ── Controls ─────────────────────────────────────────────────── */
+.controls { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+.control-group { display: flex; flex-direction: column; gap: 6px; }
+.control-group label {
+  font-size: .7rem; font-weight: 700;
+  letter-spacing: .13em; text-transform: uppercase; color: var(--dim);
+}
+
+/* ── Inputs ───────────────────────────────────────────────────── */
+input[type=text], select {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  color: var(--black);
+  font-family: var(--sans);
+  font-size: .88rem;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color .15s;
+  border-radius: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type=text]:focus, select:focus { border-color: var(--black); }
+select {
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+}
+
+/* ── Autocomplete ─────────────────────────────────────────────── */
+.ac-wrap { position: relative; }
+.ac-dropdown {
+  display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+  background: var(--white); border: 1px solid var(--black);
+  border-top: none; max-height: 220px; overflow-y: auto;
+}
+.ac-item {
+  padding: 8px 12px; font-size: .85rem; cursor: pointer;
+  display: flex; align-items: center; gap: 8px; color: var(--black);
+}
+.ac-item:hover, .ac-item.active { background: var(--black); color: var(--white); }
+
+/* ── Buttons ──────────────────────────────────────────────────── */
+.btn {
+  background: var(--black); color: var(--white);
+  border: none; padding: 10px 22px;
+  font-family: var(--sans); font-size: .78rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  cursor: pointer; transition: opacity .15s; white-space: nowrap;
+}
+.btn:hover { opacity: .8; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn-outline {
+  background: transparent; color: var(--black);
+  border: 1px solid var(--rule);
+}
+.btn-outline:hover { border-color: var(--black); opacity: 1; }
+
+/* ── Keyword tags ─────────────────────────────────────────────── */
+.tag-area { display: flex; flex-direction: column; gap: 8px; }
+.tag-input-row { display: flex; gap: 8px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; min-height: 22px; }
+.tag {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--black); color: var(--white);
+  font-size: .75rem; font-weight: 700;
+  padding: 4px 10px; letter-spacing: .06em;
+}
+.tag button {
+  background: none; border: none; color: inherit;
+  cursor: pointer; font-size: .95em; line-height: 1;
+  padding: 0; margin: 0; display: flex; align-items: center;
+}
+.tag-hint { font-size: .7rem; color: var(--dim); }
+
+/* ── Timeframe bar ────────────────────────────────────────────── */
+.tf-bar { display: flex; }
+.tf-btn {
+  background: transparent; border: 1px solid var(--rule);
+  color: var(--dim); font-family: var(--sans); font-weight: 700;
+  font-size: .72rem; letter-spacing: .10em; text-transform: uppercase;
+  padding: 7px 14px; cursor: pointer; margin-left: -1px;
+  transition: all .15s;
+}
+.tf-btn:first-child { margin-left: 0; }
+.tf-btn.active, .tf-btn:hover { background: var(--black); color: var(--white); border-color: var(--black); z-index: 1; }
+
+/* ── Metric cards ─────────────────────────────────────────────── */
+.metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1px; background: var(--rule); margin-bottom: 28px; }
+.metric { background: var(--white); padding: 18px 16px; border-top: 3px solid transparent; }
+.metric-kw { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.metric-val { font-family: var(--serif); font-size: 2rem; line-height: 1; margin-bottom: 4px; }
+.metric-sub { font-size: .72rem; color: var(--dim); display: flex; gap: 8px; flex-wrap: wrap; }
+.metric-trend { font-weight: 700; }
+.rising  { color: var(--rising); }
+.falling { color: var(--falling); }
+.stable  { color: var(--stable); }
+.metric-agg { font-size: .62rem; color: var(--mid); margin-top: 4px; }
+
+/* ── Chart ────────────────────────────────────────────────────── */
+.chart-wrap { position: relative; margin-bottom: 28px; background: var(--white); padding: 4px; border: 1px solid var(--rule); }
+.chart-wrap canvas { display: block; width: 100% !important; height: 100% !important; }
+
+/* ── Analysis panel ───────────────────────────────────────────── */
+.analysis-panel { border: 1px solid var(--rule); padding: 28px; margin-bottom: 28px; }
+.analysis-loading { display: none; align-items: center; gap: 12px; color: var(--dim); font-size: .85rem; }
+.analysis-loading svg { animation: spin 1.2s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.analysis-content { display: none; }
+.analysis-summary {
+  font-family: var(--sans); font-size: .95rem; line-height: 1.8;
+  color: var(--ink); margin-bottom: 20px; max-width: 720px;
+}
+.signal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.signal { padding: 12px 14px; border-left: 3px solid var(--rule); background: var(--surface); }
+.signal[data-type="accelerating"]  { border-color: var(--rising); }
+.signal[data-type="velocity"]      { border-color: var(--rising); }
+.signal[data-type="peak"]          { border-color: var(--c0); }
+.signal[data-type="convergence"]   { border-color: var(--c3); }
+.signal[data-type="declining"]     { border-color: var(--falling); }
+.signal[data-type="velocity_down"] { border-color: var(--falling); }
+.signal[data-type="volatile"]      { border-color: var(--c4); }
+.signal[data-type="steady"]        { border-color: var(--mid); }
+.signal-label { font-size: .65rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
+.signal-text { font-size: .82rem; line-height: 1.6; }
+.analysis-prediction {
+  font-size: .88rem; line-height: 1.75;
+  color: var(--ink); padding: 16px 20px;
+  border: 1px solid var(--rule); background: var(--surface);
+}
+.analysis-prediction strong {
+  font-family: var(--serif); font-size: .95rem; font-weight: 400;
+  display: block; margin-bottom: 6px;
+}
+
+/* ── Forecast chips ───────────────────────────────────────────── */
+.forecast-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.forecast-chip {
+  font-size: .75rem; padding: 5px 12px;
+  border: 1px solid var(--rule); color: var(--dim);
+  display: flex; align-items: center; gap: 6px;
+}
+.forecast-chip.up   { border-color: var(--rising);  color: var(--rising); }
+.forecast-chip.down { border-color: var(--falling); color: var(--falling); }
+
+/* ── Region multi-select ──────────────────────────────────────── */
+.region-multi { display: flex; flex-wrap: wrap; gap: 8px; }
+.rc-chip {
+  display: flex; align-items: center; gap: 6px;
+  border: 1px solid var(--rule); padding: 6px 14px;
+  font-size: .75rem; font-weight: 700; cursor: pointer;
+  background: var(--white); letter-spacing: .06em; text-transform: uppercase;
+  transition: all .15s; white-space: nowrap;
+}
+.rc-chip.selected { background: var(--black); color: var(--white); border-color: var(--black); }
+.rc-chip:hover:not(.selected) { border-color: var(--black); }
+.rc-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+.rc-legend-item { display: flex; align-items: center; gap: 6px; font-size: .78rem; color: var(--dim); }
+.rc-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* ── Related table ────────────────────────────────────────────── */
+.related-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+.related-table th {
+  text-align: left; font-size: .68rem; font-weight: 700;
+  letter-spacing: .13em; text-transform: uppercase; color: var(--dim);
+  padding: 8px 0; border-bottom: 1px solid var(--rule);
+}
+.related-table td { padding: 9px 0; border-bottom: 1px solid var(--surface); font-size: .85rem; }
+.related-table tr:last-child td { border-bottom: none; }
+.badge {
+  display: inline-block; font-size: .65rem; font-weight: 900;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: 2px 7px; margin-left: 8px;
+}
+.badge-breakout { background: var(--black); color: var(--white); }
+.badge-rising   { background: var(--rising); color: var(--white); }
+.val-bar { display: flex; align-items: center; gap: 8px; }
+.bar-track { flex: 1; height: 3px; background: var(--surface); }
+.bar-fill  { height: 100%; background: var(--black); }
+
+/* ── Breakout cards ───────────────────────────────────────────── */
+.breakout-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.breakout-card { border: 1px solid var(--rule); padding: 18px; overflow: hidden; }
+.breakout-kw { font-size: .72rem; font-weight: 700; letter-spacing: .10em; text-transform: uppercase; margin-bottom: 8px; color: var(--dim); }
+.breakout-val { font-family: var(--serif); font-size: 2rem; line-height: 1; }
+.breakout-momentum { font-size: .78rem; font-weight: 700; margin-top: 4px; }
+.breakout-spark { position: relative; height: 50px; margin-top: 12px; width: 100%; }
+.breakout-spark canvas { width: 100% !important; height: 100% !important; }
+
+/* ── Compare table ────────────────────────────────────────────── */
+.compare-table { width: 100%; border-collapse: collapse; }
+.compare-table th {
+  text-align: left; padding: 8px 10px; font-size: .68rem; font-weight: 700;
+  letter-spacing: .13em; text-transform: uppercase; color: var(--dim);
+  border-bottom: 2px solid var(--rule);
+}
+.compare-table td { padding: 10px 10px; font-size: .85rem; border-bottom: 1px solid var(--surface); }
+.compare-table tr:last-child td { border-bottom: none; }
+.kw-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+
+/* ── Config ───────────────────────────────────────────────────── */
+.config-group { margin-bottom: 28px; }
+.config-group h3 { font-family: var(--serif); font-size: 1rem; margin-bottom: 10px; font-weight: 400; }
+.config-textarea {
+  width: 100%; font-family: var(--sans); font-size: .82rem;
+  border: 1px solid var(--rule); padding: 12px; resize: vertical;
+  outline: none; color: var(--black); background: var(--white);
+  min-height: 60px; line-height: 1.5;
+}
+.config-textarea:focus { border-color: var(--black); }
+
+/* ── Loading ──────────────────────────────────────────────────── */
+.loading { display: none; align-items: center; gap: 12px; font-size: .85rem; color: var(--dim); padding: 32px 0; }
+.loading svg { animation: spin 1.2s linear infinite; }
+.spinner-svg { stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+
+/* ── Misc ─────────────────────────────────────────────────────── */
+.hidden { display: none; }
+.flex-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.text-dim { color: var(--dim); }
+.text-sm  { font-size: .8rem; }
+.mt-28 { margin-top: 28px; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── Nav ───────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-logo">
+    <h1>Solecast</h1>
+    <p>Trend Intelligence</p>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showView('dashboard')"><span class="nav-num">01</span> Dashboard</button>
+    <button class="nav-link" onclick="showView('compare')"><span class="nav-num">02</span> Compare</button>
+    <button class="nav-link" onclick="showView('region-compare')"><span class="nav-num">03</span> Regions</button>
+    <button class="nav-link" onclick="showView('breakout')"><span class="nav-num">04</span> Breakout</button>
+    <button class="nav-link" onclick="showView('related')"><span class="nav-num">05</span> Related</button>
+    <button class="nav-link" onclick="showView('config')"><span class="nav-num">06</span> Configure</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- Rate limit banner -->
+<div id="rate-limit-banner">
+  <span>⚠ Google Trends rate limit reached. Wait 30–60 seconds, then retry.</span>
+  <button onclick="document.getElementById('rate-limit-banner').style.display='none'">Dismiss</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 01 DASHBOARD                                                -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="view-dashboard">
+  <div class="view-header">
+    <div class="view-meta">01 — Dashboard</div>
+    <h2>Trend Overview</h2>
+    <p>Track Google search interest for a group of sneaker keywords over time. Pick a pre-configured group or type your own keywords, then choose a region and timeframe. Index values are relative (0–100), where 100 = peak interest in the period.</p>
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>Keyword Group</label>
+      <select id="group-select" onchange="loadGroup()" style="min-width:220px">
+        <option value="">— Custom keywords —</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>Region</label>
+      <select id="dash-region" style="min-width:220px">
+        <option value="">Global</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>Timeframe</label>
+      <div class="tf-bar">
+        <button class="tf-btn" data-tf="now 7-d">1W</button>
+        <button class="tf-btn" data-tf="today 1-m">1M</button>
+        <button class="tf-btn active" data-tf="today 3-m">3M</button>
+        <button class="tf-btn" data-tf="today 12-m">12M</button>
+        <button class="tf-btn" data-tf="today 5-y">5Y</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tag-area" style="margin-bottom:20px">
+    <div class="tag-input-row">
+      <div class="ac-wrap" style="flex:1">
+        <input type="text" id="dash-kw-input" placeholder="Add keyword (max 5)…" style="width:100%" autocomplete="off">
+        <div class="ac-dropdown" id="dash-kw-ac"></div>
+      </div>
+      <button class="btn" onclick="addDashKeyword()">Add</button>
+    </div>
+    <div class="tags" id="dash-tags"></div>
+    <span class="tag-hint">Up to 5 keywords per search</span>
+  </div>
+
+  <button class="btn" onclick="runDashboard()">Run Analysis</button>
+
+  <hr class="divider">
+
+  <div class="loading" id="dash-loading">
+    <svg width="20" height="20" viewBox="0 0 20 20" class="spinner-svg"><circle cx="10" cy="10" r="7" stroke-dasharray="44" stroke-dashoffset="11"/></svg>
+    Fetching Google Trends data…
+  </div>
+
+  <div id="dash-results" class="hidden">
+    <div class="metrics" id="dash-metrics"></div>
+    <div class="chart-wrap" style="height:320px">
+      <canvas id="dash-chart"></canvas>
+    </div>
+    <div class="analysis-panel" id="dash-analysis-panel">
+      <div class="section-label">Analysis &amp; Forecast</div>
+      <div class="analysis-loading" id="dash-analysis-loading">
+        <svg width="16" height="16" viewBox="0 0 20 20" class="spinner-svg"><circle cx="10" cy="10" r="7" stroke-dasharray="44" stroke-dashoffset="11"/></svg>
+        Analyzing trends…
+      </div>
+      <div class="analysis-content" id="dash-analysis-content"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 02 COMPARE                                                  -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="view-compare" class="hidden">
+  <div class="view-header">
+    <div class="view-meta">02 — Compare</div>
+    <h2>Keyword Compare</h2>
+    <p>Enter up to 5 custom keywords and compare their search interest side-by-side on a single chart. Use this to benchmark competing silhouettes, brands, or trends directly against each other. All keywords are indexed relative to the top performer in the group.</p>
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>Region</label>
+      <select id="compare-region" style="min-width:220px">
+        <option value="">Global</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>Timeframe</label>
+      <div class="tf-bar">
+        <button class="tf-btn" data-tf="now 7-d">1W</button>
+        <button class="tf-btn" data-tf="today 1-m">1M</button>
+        <button class="tf-btn active" data-tf="today 3-m">3M</button>
+        <button class="tf-btn" data-tf="today 12-m">12M</button>
+        <button class="tf-btn" data-tf="today 5-y">5Y</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tag-area" style="margin-bottom:20px">
+    <div class="tag-input-row">
+      <div class="ac-wrap" style="flex:1">
+        <input type="text" id="compare-kw-input" placeholder="Add keyword…" style="width:100%" autocomplete="off">
+        <div class="ac-dropdown" id="compare-kw-ac"></div>
+      </div>
+      <button class="btn" onclick="addCompareKeyword()">Add</button>
+    </div>
+    <div class="tags" id="compare-tags"></div>
+    <span class="tag-hint">Up to 5 keywords</span>
+  </div>
+
+  <button class="btn" onclick="runCompare()">Compare</button>
+
+  <hr class="divider">
+
+  <div class="loading" id="compare-loading">
+    <svg width="20" height="20" viewBox="0 0 20 20" class="spinner-svg"><circle cx="10" cy="10" r="7" stroke-dasharray="44" stroke-dashoffset="11"/></svg>
+    Fetching data…
+  </div>
+  <div id="compare-results" class="hidden">
+    <div class="metrics" id="compare-metrics"></div>
+    <div class="chart-wrap" style="height:320px">
+      <canvas id="compare-chart"></canvas>
+    </div>
+    <div style="overflow-x:auto; margin-bottom:28px">
+      <table class="compare-table" id="compare-table"></table>
+    </div>
+    <div class="analysis-panel">
+      <div class="section-label">Analysis &amp; Forecast</div>
+      <div class="analysis-loading" id="compare-analysis-loading">
+        <svg width="16" height="16" viewBox="0 0 20 20" class="spinner-svg"><circle cx="10" cy="10" r="7" stroke-dasharray="44" stroke-dashoffset="11"/></svg>
+        Analyzing…
+      </div>
+      <div class="analysis-content" id="compare-analysis-content"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 03 REGION COMPARE                                           -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="view-region-compare" class="hidden">
+  <div class="view-header">
+    <div class="view-meta">03 — Region Compare</div>
+    <h2>Region Compare</h2>
+    <p>Track how a keyword performs across different markets simultaneously. Select 2–6 regions and a keyword to see search interest overlaid on a single chart — useful for spotting where a trend is gaining ground before it hits globally. Aggregate regions (EMEA All, APLA All, etc.) are computed as country averages.</p>
+  </div>
+
+  <div class="controls" style="align-items:flex-end">
+    <div class="control-group" style="flex:1; min-width:220px">
+      <label>Keyword</label>
+      <div class="ac-wrap">
+        <input type="text" id="rc-kw-input" placeholder="e.g. New Balance 550" style="width:100%" autocomplete="off">
+        <div class="ac-dropdown" id="rc-kw-ac"></div>
+      </div>
+    </div>
+    <div class="control-group">
+      <label>Timeframe</label>
+      <div class="tf-bar">
+        <button class="tf-btn" data-tf="now 7-d">1W</button>
+        <button class="tf-btn" data-tf="today 1-m">1M</button>
+        <button class="tf-btn active" data-tf="today 3-m">3M</button>
+        <button class="tf-btn" data-tf="today 12-m">12M</button>
+        <button class="tf-btn" data-tf="today 5-y">5Y</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="control-group" style="margin-bottom:20px">
+    <label style="margin-bottom:10px; display:block">Select Regions (choose 2–6)</label>
+    <div class="region-multi" id="rc-region-chips"></div>
+  </div>
+
+  <button class="btn" onclick="runRegionCompare()">Compare Regions</button>
+
+  <hr class="divider">
+
+  <div class="loading" id="rc-loading">
+    <svg width="20" height="20" viewBox="0 0 20 20" class="spinner-svg"><circle cx="10" cy="10" r="7" stroke-dasharray="44" stroke-dashoffset="11"/></svg>
+    Fetching regional data — this may take a moment for aggregate regions…
+  </div>
+
+  <div id="rc-results" class="hidden">
+    <div class="rc-legend" id="rc-legend"></div>
+    <div class="chart-wrap" style="height:360px">
+      <canvas id="rc-chart"></canvas>
+    </div>
+    <div class="mt-28" style="margin-bottom:28px">
+      <div class="section-label">Regional Rankings</div>
+      <table class="compare-table" id="rc-table"></table>
+    </div>
+    <div class="analysis-panel">
+      <div class="section-label">Cross-Region Analysis &amp; Forecast</div>
+      <div class="analysis-loading" id="rc-analysis-loading">
+        <svg width="16" height="16" viewBox="0 0 20 20" class="spinner-svg"><circle cx="10" cy="10" r="7" stroke-dasharray="44" stroke-dashoffset="11"/></svg>
+        Analyzing regional divergence…
+      </div>
+      <div class="analysis-content" id="rc-analysis-content"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 04 BREAKOUT DETECTION                                       -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="view-breakout" class="hidden">
+  <div class="view-header">
+    <div class="view-meta">04 — Breakout Detection</div>
+    <h2>Breakout Detection</h2>
+    <p>Scans your micro-trend keyword list and ranks each term by <strong>momentum</strong> — the difference between average search interest in the second half vs the first half of the past 3 months. A high positive score means a term is gaining fast. Cards at the top left are the hottest movers. Configure the keyword list in the <button onclick="showView('config')" style="background:none;border:none;color:var(--black);font-family:var(--sans);font-size:inherit;cursor:pointer;text-decoration:underline;font-weight:700;padding:0">Configure</button> view.</p>
+  </div>
+
+  <div class="flex-row" style="margin-bottom:8px">
+    <button class="btn" onclick="runBreakout()">Scan Now</button>
+    <span class="text-dim text-sm">Checks all micro-trend keywords — takes ~30–60s depending on list length</span>
+  </div>
+
+  <div class="loading" id="breakout-loading">
+    <svg width="20" height="20" viewBox="0 0 20 20" class="spinner-svg"><circle cx="10" cy="10" r="7" stroke-dasharray="44" stroke-dashoffset="11"/></svg>
+    Scanning micro-trends…
+  </div>
+  <div id="breakout-results" class="hidden">
+    <div class="breakout-grid" id="breakout-grid"></div>
+    <div class="analysis-panel" style="margin-top:28px">
+      <div class="section-label">Breakout Analysis &amp; Forecast</div>
+      <div class="analysis-loading" id="breakout-analysis-loading">
+        <svg width="16" height="16" viewBox="0 0 20 20" class="spinner-svg"><circle cx="10" cy="10" r="7" stroke-dasharray="44" stroke-dashoffset="11"/></svg>
+        Analyzing momentum…
+      </div>
+      <div class="analysis-content" id="breakout-analysis-content"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 05 RELATED QUERIES                                          -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="view-related" class="hidden">
+  <div class="view-header">
+    <div class="view-meta">05 — Related Queries</div>
+    <h2>Related Queries</h2>
+    <p>Discover what else people search alongside a specific keyword. <strong>Breakout queries</strong> saw a massive recent spike relative to their normal volume — often a leading signal of early hype. <strong>Top queries</strong> are the most commonly co-searched terms overall, revealing the keyword's established audience and adjacent interests.</p>
+  </div>
+
+  <div class="controls">
+    <div class="control-group" style="flex:1; min-width:240px">
+      <label>Keyword</label>
+      <div class="ac-wrap">
+        <input type="text" id="related-kw-input" placeholder="e.g. Air Jordan 4" style="width:100%" autocomplete="off">
+        <div class="ac-dropdown" id="related-kw-ac"></div>
+      </div>
+    </div>
+    <div class="control-group">
+      <label>Timeframe</label>
+      <div class="tf-bar">
+        <button class="tf-btn" data-tf="now 7-d">1W</button>
+        <button class="tf-btn" data-tf="today 1-m">1M</button>
+        <button class="tf-btn active" data-tf="today 3-m">3M</button>
+        <button class="tf-btn" data-tf="today 12-m">12M</button>
+        <button class="tf-btn" data-tf="today 5-y">5Y</button>
+      </div>
+    </div>
+    <div class="control-group" style="justify-content:flex-end">
+      <button class="btn" onclick="runRelated()" style="align-self:flex-end">Fetch</button>
+    </div>
+  </div>
+
+  <div class="loading" id="related-loading">
+    <svg width="20" height="20" viewBox="0 0 20 20" class="spinner-svg"><circle cx="10" cy="10" r="7" stroke-dasharray="44" stroke-dashoffset="11"/></svg>
+    Fetching related queries…
+  </div>
+  <div id="related-results" class="hidden">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:36px; margin-top:8px">
+      <div>
+        <div class="section-label">Breakout Queries</div>
+        <table class="related-table" id="related-rising-table"></table>
+      </div>
+      <div>
+        <div class="section-label">Top Queries</div>
+        <table class="related-table" id="related-top-table"></table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 06 CONFIGURE                                                -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="view-config" class="hidden">
+  <div class="view-header">
+    <div class="view-meta">06 — Configure</div>
+    <h2>Configure</h2>
+    <p>Customize which keyword groups appear in the Dashboard dropdown, and which micro-trend terms the Breakout scanner watches. Each group supports up to 5 keywords (Google Trends limit). Edit the fields below and save — changes apply immediately without a server restart.</p>
+  </div>
+
+  <div id="config-groups"></div>
+
+  <div class="config-group">
+    <h3>Micro-Trend Keywords</h3>
+    <p class="text-dim text-sm" style="margin-bottom:10px">Scanned by the Breakout Detection view. One keyword per line.</p>
+    <textarea class="config-textarea" id="config-micro" rows="8"></textarea>
+  </div>
+
+  <div class="flex-row">
+    <button class="btn" onclick="saveConfig()">Save Changes</button>
+    <button class="btn btn-outline" onclick="resetConfig()">Reset to Defaults</button>
+    <span id="config-status" class="text-dim text-sm"></span>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+const PALETTE = ['#1a56db','#c8391a','#1e7a3a','#b8850a','#7c3aab'];
+const PA = (i, a) => PALETTE[i % PALETTE.length] + Math.round(a * 255).toString(16).padStart(2, '0');
+
+let dashChart = null, compareChart = null, rcChart = null;
+let activeTimeframes = { dashboard: 'today 3-m', compare: 'today 3-m', related: 'today 3-m', 'region-compare': 'today 3-m' };
+let dashKeywords = [], compareKeywords = [], compareKws = [];
+let configData = {}, regionsList = [], selectedRcRegions = [];
+
+// ── Init ─────────────────────────────────────────────────────────
+async function init() {
+  await Promise.all([loadRegions(), loadConfig()]);
+  initTimeframeBars();
+  initAC('dash-kw-input',    'dash-kw-ac',    kw => { addTagKw(kw, 'dash');    closeAC('dash-kw-ac');    });
+  initAC('compare-kw-input', 'compare-kw-ac', kw => { addTagKw(kw, 'compare'); closeAC('compare-kw-ac'); });
+  initAC('rc-kw-input',      'rc-kw-ac',      kw => { document.getElementById('rc-kw-input').value = kw;      closeAC('rc-kw-ac');      });
+  initAC('related-kw-input', 'related-kw-ac', kw => { document.getElementById('related-kw-input').value = kw; closeAC('related-kw-ac'); });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const a = document.activeElement;
+    if (a.id === 'dash-kw-input')    addDashKeyword();
+    if (a.id === 'compare-kw-input') addCompareKeyword();
+  });
+  document.addEventListener('click', e => {
+    document.querySelectorAll('.ac-dropdown').forEach(d => {
+      if (!d.parentElement.contains(e.target)) d.style.display = 'none';
+    });
+  });
+}
+
+async function loadRegions() {
+  try {
+    const r = await fetch('/api/regions');
+    regionsList = await r.json();
+    renderRegionSelects();
+    renderRcChips();
+  } catch(e) { console.error(e); }
+}
+
+async function loadConfig() {
+  try {
+    const r = await fetch('/api/config');
+    configData = await r.json();
+    populateGroupSelect();
+    renderConfigForm();
+  } catch(e) { console.error(e); }
+}
+
+// ── Views ─────────────────────────────────────────────────────────
+function showView(name) {
+  document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+  document.getElementById('view-' + name).classList.remove('hidden');
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const idx = ['dashboard','compare','region-compare','breakout','related','config'].indexOf(name);
+  if (idx >= 0) document.querySelectorAll('.nav-link')[idx].classList.add('active');
+}
+
+// ── Regions ───────────────────────────────────────────────────────
+function renderRegionSelects() {
+  ['dash-region','compare-region'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">Global</option>';
+    const groups = {};
+    regionsList.filter(r => r.label !== 'Global').forEach(r => {
+      const g = r.group || 'Other';
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(r);
+    });
+    Object.entries(groups).forEach(([g, items]) => {
+      const og = document.createElement('optgroup');
+      og.label = g;
+      items.forEach(r => {
+        const o = document.createElement('option');
+        o.value = r.geo; o.textContent = r.label;
+        og.appendChild(o);
+      });
+      sel.appendChild(og);
+    });
+  });
+}
+
+function renderRcChips() {
+  const wrap = document.getElementById('rc-region-chips');
+  // Dedupe by label+geo (APLA Japan appears twice in source list)
+  const seen = new Set();
+  const unique = regionsList.filter(r => {
+    const k = r.label + r.geo;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  wrap.innerHTML = unique.map(r => `
+    <div class="rc-chip" data-geo="${r.geo}" data-label="${r.label}" onclick="toggleRcChip(this)">
+      ${r.label}
+    </div>`).join('');
+}
+
+function toggleRcChip(el) {
+  const geo = el.dataset.geo, label = el.dataset.label;
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    selectedRcRegions = selectedRcRegions.filter(r => r.geo !== geo);
+  } else {
+    if (selectedRcRegions.length >= 6) return;
+    el.classList.add('selected');
+    selectedRcRegions.push({ geo, label });
+  }
+}
+
+// ── Keywords / Tags ───────────────────────────────────────────────
+function addTagKw(kw, view) {
+  kw = kw.trim();
+  if (!kw) return;
+  if (view === 'dash') {
+    if (dashKeywords.length >= 5 || dashKeywords.includes(kw)) return;
+    dashKeywords.push(kw);
+    renderTags('dash-tags', dashKeywords, 'dash');
+    document.getElementById('dash-kw-input').value = '';
+  } else {
+    if (compareKeywords.length >= 5 || compareKeywords.includes(kw)) return;
+    compareKeywords.push(kw);
+    renderTags('compare-tags', compareKeywords, 'compare');
+    document.getElementById('compare-kw-input').value = '';
+  }
+}
+function addDashKeyword()    { const v = document.getElementById('dash-kw-input').value.trim();    if (v) addTagKw(v, 'dash'); }
+function addCompareKeyword() { const v = document.getElementById('compare-kw-input').value.trim(); if (v) addTagKw(v, 'compare'); }
+
+function renderTags(containerId, arr, view) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  arr.forEach((kw, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'tag';
+    chip.innerHTML = `${kw} <button type="button">×</button>`;
+    chip.querySelector('button').addEventListener('click', () => {
+      if (view === 'dash') { dashKeywords.splice(i, 1); renderTags('dash-tags', dashKeywords, 'dash'); }
+      else { compareKeywords.splice(i, 1); renderTags('compare-tags', compareKeywords, 'compare'); }
+    });
+    c.appendChild(chip);
+  });
+}
+
+// ── Timeframe bars ─────────────────────────────────────────────────
+function initTimeframeBars() {
+  document.querySelectorAll('.tf-bar').forEach(bar => {
+    bar.querySelectorAll('.tf-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        bar.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const view = bar.closest('section').id.replace('view-', '');
+        activeTimeframes[view] = btn.dataset.tf;
+      });
+    });
+  });
+}
+
+// ── Autocomplete ───────────────────────────────────────────────────
+function initAC(inputId, dropdownId, onSelect) {
+  const input = document.getElementById(inputId);
+  const drop  = document.getElementById(dropdownId);
+  let timer = null, activeIdx = -1, items = [];
+
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const q = input.value.trim();
+      if (q.length < 2) { drop.style.display = 'none'; return; }
+      try {
+        const r = await fetch(`/api/suggest?q=${encodeURIComponent(q)}`);
+        items = await r.json();
+        if (!items.length) { drop.style.display = 'none'; return; }
+        drop.innerHTML = items.map((s, i) => `<div class="ac-item" data-idx="${i}">${s}</div>`).join('');
+        drop.style.display = 'block';
+        activeIdx = -1;
+        drop.querySelectorAll('.ac-item').forEach(el => {
+          el.addEventListener('mousedown', e => { e.preventDefault(); onSelect(items[+el.dataset.idx]); });
+        });
+      } catch(e) { drop.style.display = 'none'; }
+    }, 180);
+  });
+
+  input.addEventListener('keydown', e => {
+    const els = drop.querySelectorAll('.ac-item');
+    if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(activeIdx+1, els.length-1); hl(els); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = Math.max(activeIdx-1, -1); hl(els); }
+    else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); onSelect(items[activeIdx]); }
+    else if (e.key === 'Escape') drop.style.display = 'none';
+  });
+
+  function hl(els) {
+    els.forEach((el, i) => el.classList.toggle('active', i === activeIdx));
+    if (activeIdx >= 0 && items[activeIdx]) input.value = items[activeIdx];
+  }
+}
+function closeAC(id) { const d = document.getElementById(id); if (d) d.style.display = 'none'; }
+
+// ── Group select ───────────────────────────────────────────────────
+function populateGroupSelect() {
+  const sel = document.getElementById('group-select');
+  sel.innerHTML = '<option value="">— Custom keywords —</option>';
+  Object.keys(configData.keyword_groups || {}).forEach(g => {
+    const o = document.createElement('option'); o.value = g; o.textContent = g;
+    sel.appendChild(o);
+  });
+}
+function loadGroup() {
+  const g = document.getElementById('group-select').value;
+  if (!g || !configData.keyword_groups?.[g]) return;
+  dashKeywords = [...configData.keyword_groups[g]];
+  renderTags('dash-tags', dashKeywords, 'dash');
+}
+
+// ── Fetch helpers ──────────────────────────────────────────────────
+async function postJSON(url, body) {
+  return fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+}
+function showBanner(msg) {
+  const b = document.getElementById('rate-limit-banner');
+  b.querySelector('span').textContent = '⚠ ' + msg;
+  b.style.display = 'flex';
+}
+function handleErr(data) {
+  if (data.rate_limited) showBanner('Google Trends rate limit reached. Wait 30–60 seconds, then retry.');
+  else showBanner(data.error || 'Unknown error');
+}
+// Strip the _meta envelope; surface a notice if the data is synthetic sample data
+function splitMeta(d) {
+  const meta = d._meta || null;
+  const data = { ...d };
+  delete data._meta;
+  if (meta && meta.sample) {
+    const why = meta.reason === 'network'
+      ? "Google Trends is unreachable right now"
+      : "Google Trends is rate-limiting this IP";
+    showBanner(`Showing SAMPLE data — ${why}. Real data will load automatically once it clears (usually a few minutes).`);
+  } else {
+    document.getElementById('rate-limit-banner').style.display = 'none';
+  }
+  return data;
+}
+
+// ── Dashboard ──────────────────────────────────────────────────────
+async function runDashboard() {
+  if (!dashKeywords.length) { alert('Add at least one keyword.'); return; }
+  const geo = document.getElementById('dash-region').value;
+  const tf  = activeTimeframes['dashboard'];
+  showL('dash-loading'); hide('dash-results');
+  try {
+    const r = await postJSON('/api/trends', { keywords: dashKeywords, timeframe: tf, geo });
+    const raw = await r.json();
+    if (!r.ok) { handleErr(raw); return; }
+    const d = splitMeta(raw);
+    renderMetrics('dash-metrics', d);
+    show('dash-results');
+    renderLine('dash-chart', d, v => { if(dashChart) dashChart.destroy(); dashChart = v; });
+    const tfLabel = document.querySelector('#view-dashboard .tf-btn.active')?.textContent || '3M';
+    runAnalysis(d, 'dash-analysis-content', 'dash-analysis-loading', tfLabel, document.getElementById('group-select').value || 'Custom');
+  } catch(e) { console.error(e); showBanner('Connection error — check your network and try again.'); }
+  finally { hide('dash-loading'); }
+}
+
+// ── Compare ────────────────────────────────────────────────────────
+async function runCompare() {
+  compareKws = [...compareKeywords];
+  if (!compareKws.length) { alert('Add at least one keyword.'); return; }
+  const geo = document.getElementById('compare-region').value;
+  const tf  = activeTimeframes['compare'];
+  showL('compare-loading'); hide('compare-results');
+  try {
+    const r = await postJSON('/api/trends', { keywords: compareKws, timeframe: tf, geo });
+    const raw = await r.json();
+    if (!r.ok) { handleErr(raw); return; }
+    const d = splitMeta(raw);
+    renderMetrics('compare-metrics', d);
+    show('compare-results');
+    renderLine('compare-chart', d, v => { if(compareChart) compareChart.destroy(); compareChart = v; });
+    renderCompareTable(d, compareKws);
+    const tfLabel = document.querySelector('#view-compare .tf-btn.active')?.textContent || '3M';
+    runAnalysis(d, 'compare-analysis-content', 'compare-analysis-loading', tfLabel, 'Custom Compare');
+  } catch(e) { console.error(e); showBanner('Connection error — check your network and try again.'); }
+  finally { hide('compare-loading'); }
+}
+
+// ── Region Compare ─────────────────────────────────────────────────
+async function runRegionCompare() {
+  const kw = document.getElementById('rc-kw-input').value.trim();
+  if (!kw) { alert('Enter a keyword.'); return; }
+  if (selectedRcRegions.length < 2) { alert('Select at least 2 regions.'); return; }
+  const tf = activeTimeframes['region-compare'];
+  showL('rc-loading'); hide('rc-results');
+  try {
+    const r = await postJSON('/api/region-compare', { keywords: [kw], timeframe: tf, geos: selectedRcRegions });
+    const raw = await r.json();
+    if (!r.ok) { handleErr(raw); return; }
+    const d = splitMeta(raw);
+    show('rc-results');
+    renderRegionCompare(d, kw);
+    runRegionAnalysis(d, kw);
+  } catch(e) { console.error(e); showBanner('Connection error — check your network and try again.'); }
+  finally { hide('rc-loading'); }
+}
+
+function renderRegionCompare(data, kw) {
+  const regions = Object.keys(data).filter(k => k !== '_meta');
+  document.getElementById('rc-legend').innerHTML = regions.map((r, i) => `
+    <div class="rc-legend-item">
+      <div class="rc-legend-dot" style="background:${PALETTE[i % PALETTE.length]}"></div>
+      <span>${r}</span>
+    </div>`).join('');
+
+  if (rcChart) rcChart.destroy();
+  const firstRegion = data[regions[0]];
+  const labels = firstRegion?.[kw]?.dates || Object.values(firstRegion || {})[0]?.dates || [];
+  const datasets = regions.map((region, i) => {
+    const kwData = data[region]?.[kw] || Object.values(data[region] || {})[0] || {};
+    return {
+      label: region,
+      data: kwData.values || [],
+      borderColor: PALETTE[i % PALETTE.length],
+      backgroundColor: PA(i, 0.06),
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.35,
+      fill: false,
+    };
+  });
+  const ctx = document.getElementById('rc-chart').getContext('2d');
+  rcChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: true, position: 'top', labels: { font: { family: 'Lato', size: 11 }, usePointStyle: true, boxWidth: 8 } },
+        tooltip: { callbacks: { label: t => ` ${t.dataset.label}: ${t.raw}` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Lato', size: 10 }, maxTicksLimit: 8 } },
+        y: { min: 0, max: 100, grid: { color: '#e8e5de' }, ticks: { font: { family: 'Lato', size: 10 }, stepSize: 25 } }
+      }
+    }
+  });
+
+  const rows = regions.map((r, i) => {
+    const kwData = data[r]?.[kw] || Object.values(data[r] || {})[0] || {};
+    return { label: r, idx: i, current: kwData.current ?? '—', peak: kwData.peak ?? '—', avg: kwData.avg ?? '—', trend: kwData.trend ?? '—' };
+  }).sort((a, b) => (typeof b.current === 'number' ? b.current : -1) - (typeof a.current === 'number' ? a.current : -1));
+
+  document.getElementById('rc-table').innerHTML = `
+    <tr><th>Region</th><th>Current</th><th>Peak</th><th>Avg</th><th>Trend</th></tr>
+    ${rows.map(r => `<tr>
+      <td><span class="kw-dot" style="background:${PALETTE[r.idx % PALETTE.length]}"></span>${r.label}</td>
+      <td style="font-family:var(--serif);font-size:1.1rem">${r.current}</td>
+      <td>${r.peak}</td>
+      <td>${r.avg}</td>
+      <td class="${r.trend}">${r.trend !== '—' ? ti(r.trend) + ' ' + r.trend : '—'}</td>
+    </tr>`).join('')}`;
+}
+
+// ── Breakout ───────────────────────────────────────────────────────
+async function runBreakout() {
+  showL('breakout-loading'); hide('breakout-results');
+  try {
+    const r = await postJSON('/api/breakout', {});
+    const d = await r.json();
+    if (!r.ok) { handleErr(d); return; }
+    const nSample = Array.isArray(d) ? d.filter(x => x.sample).length : 0;
+    if (nSample === d.length && nSample > 0) {
+      showBanner('Showing SAMPLE data — Google Trends is rate-limiting this IP. Real data will load once it clears.');
+    } else if (nSample > 0) {
+      showBanner(`${nSample} of ${d.length} keywords fell back to sample data (Google rate-limited a few requests). The rest is live. Re-scan in a minute for all-real data.`);
+    } else {
+      document.getElementById('rate-limit-banner').style.display = 'none';
+    }
+    show('breakout-results');
+    renderBreakout(d);
+    runBreakoutAnalysis(d);
+  } catch(e) { console.error(e); showBanner('Connection error — check your network and try again.'); }
+  finally { hide('breakout-loading'); }
+}
+
+function renderBreakout(items) {
+  const grid = document.getElementById('breakout-grid');
+  if (!items.length) { grid.innerHTML = '<div style="color:var(--dim);font-size:.88rem;padding:24px 0">No data returned. Try running again.</div>'; return; }
+  grid.innerHTML = items.map((item, i) => {
+    const isPos = item.momentum > 0;
+    const col   = isPos ? 'var(--rising)' : item.momentum < 0 ? 'var(--falling)' : 'var(--dim)';
+    const arrow = isPos ? '↑' : item.momentum < 0 ? '↓' : '→';
+    const tag = item.sample ? `<span style="font-size:.55rem;font-weight:900;letter-spacing:.1em;color:var(--mid);border:1px solid var(--rule);padding:1px 5px;margin-left:6px;vertical-align:middle">SAMPLE</span>` : '';
+    return `
+    <div class="breakout-card">
+      <div class="breakout-kw">${item.keyword}${tag}</div>
+      <div class="breakout-val">${item.current}</div>
+      <div class="breakout-momentum" style="color:${col}">${arrow} ${item.momentum > 0 ? '+' : ''}${item.momentum} momentum</div>
+      <div class="breakout-spark"><canvas id="boc-${i}"></canvas></div>
+    </div>`;
+  }).join('');
+  items.forEach((item, i) => {
+    const ctx = document.getElementById(`boc-${i}`).getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: { labels: item.dates, datasets: [{ data: item.values, borderColor: item.momentum > 0 ? '#1e7a3a' : '#b83222', borderWidth: 1.5, pointRadius: 0, fill: true, backgroundColor: item.momentum > 0 ? '#1e7a3a18' : '#b8322218', tension: 0.4 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } }, animation: false }
+    });
+  });
+}
+
+async function runBreakoutAnalysis(items) {
+  const loading = document.getElementById('breakout-analysis-loading');
+  const content = document.getElementById('breakout-analysis-content');
+  loading.style.display = 'flex';
+  content.style.display = 'none';
+  try {
+    const r = await postJSON('/api/analyze-breakout', { items });
+    const result = await r.json();
+    renderAnalysis(result, content);
+    content.style.display = 'block';
+  } catch(e) { console.error(e); }
+  finally { loading.style.display = 'none'; }
+}
+
+// ── Related ────────────────────────────────────────────────────────
+async function runRelated() {
+  const kw = document.getElementById('related-kw-input').value.trim();
+  if (!kw) { alert('Enter a keyword.'); return; }
+  const tf = activeTimeframes['related'];
+  showL('related-loading'); hide('related-results');
+  try {
+    const r = await postJSON('/api/related', { keyword: kw, timeframe: tf });
+    const d = await r.json();
+    if (!r.ok) { handleErr(d); return; }
+    renderRelatedTable('related-rising-table', d.rising, true);
+    renderRelatedTable('related-top-table',    d.top,    false);
+    show('related-results');
+  } catch(e) { console.error(e); }
+  finally { hide('related-loading'); }
+}
+
+function renderRelatedTable(id, items, isRising) {
+  const t = document.getElementById(id);
+  if (!items?.length) { t.innerHTML = '<tr><td style="padding:12px 0;color:var(--dim);font-size:.85rem">No data available</td></tr>'; return; }
+  const max = Math.max(...items.map(x => isRising ? 1 : +x.value || 1));
+  t.innerHTML = `
+    <tr><th>Query</th><th>${isRising ? 'Type' : 'Value'}</th></tr>
+    ${items.map(row => `<tr>
+      <td>${row.query}</td>
+      <td>${isRising
+        ? `<span class="badge ${row.value==='Breakout'?'badge-breakout':'badge-rising'}">${row.value}</span>`
+        : `<div class="val-bar"><div class="bar-track"><div class="bar-fill" style="width:${Math.round((+row.value/max)*100)}%"></div></div><span style="font-size:.78rem;color:var(--dim)">${row.value}</span></div>`
+      }</td>
+    </tr>`).join('')}`;
+}
+
+// ── Config ─────────────────────────────────────────────────────────
+function renderConfigForm() {
+  document.getElementById('config-groups').innerHTML = Object.entries(configData.keyword_groups || {}).map(([g, kws]) => `
+    <div class="config-group">
+      <h3>${g}</h3>
+      <textarea class="config-textarea" data-group="${g}" rows="2">${kws.join(', ')}</textarea>
+    </div>`).join('');
+  document.getElementById('config-micro').value = (configData.micro_trends || []).join('\n');
+}
+
+async function saveConfig() {
+  const groups = {};
+  document.querySelectorAll('[data-group]').forEach(el => {
+    groups[el.dataset.group] = el.value.split(',').map(s => s.trim()).filter(Boolean);
+  });
+  configData.keyword_groups = groups;
+  configData.micro_trends = document.getElementById('config-micro').value.split('\n').map(s => s.trim()).filter(Boolean);
+  await postJSON('/api/config', configData);
+  populateGroupSelect();
+  const s = document.getElementById('config-status'); s.textContent = 'Saved ✓';
+  setTimeout(() => s.textContent = '', 2000);
+}
+
+async function resetConfig() {
+  const r = await fetch('/api/config/reset', { method: 'POST' });
+  configData = await r.json();
+  renderConfigForm();
+  populateGroupSelect();
+}
+
+// ── Metrics ────────────────────────────────────────────────────────
+function renderMetrics(id, data) {
+  document.getElementById(id).innerHTML = Object.entries(data).map(([kw, d], i) => {
+    const color = PALETTE[i % PALETTE.length];
+    const trend = d.trend || 'stable';
+    const agg   = d.agg_countries ? `<div class="metric-agg">Avg: ${d.agg_countries.join(', ')}</div>` : '';
+    return `
+    <div class="metric" style="border-top-color:${color}">
+      <div class="metric-kw">${kw}</div>
+      <div class="metric-val" style="color:${color}">${d.current}</div>
+      <div class="metric-sub">
+        <span class="metric-trend ${trend}">${ti(trend)} ${trend}</span>
+        <span>Peak: ${d.peak}</span>
+        <span>Avg: ${d.avg}</span>
+      </div>
+      ${agg}
+    </div>`;
+  }).join('');
+}
+
+// ── Line chart ─────────────────────────────────────────────────────
+function renderLine(canvasId, data, setter) {
+  const entries = Object.entries(data);
+  if (!entries.length) return;
+  const labels   = entries[0][1].dates;
+  const datasets = entries.map(([kw, d], i) => ({
+    label: kw, data: d.values,
+    borderColor: PALETTE[i % PALETTE.length],
+    backgroundColor: PA(i, 0.07),
+    borderWidth: 2, pointRadius: 0, tension: 0.35,
+    fill: i === 0,
+  }));
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: entries.length > 1, position: 'top', labels: { font: { family: 'Lato', size: 11 }, usePointStyle: true, boxWidth: 8 } },
+        tooltip: { callbacks: { label: t => ` ${t.dataset.label}: ${t.raw}` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Lato', size: 10 }, maxTicksLimit: 10 } },
+        y: { min: 0, max: 100, grid: { color: '#e8e5de' }, ticks: { font: { family: 'Lato', size: 10 }, stepSize: 25 } }
+      }
+    }
+  });
+  setter(chart);
+}
+
+// ── Compare table ──────────────────────────────────────────────────
+function renderCompareTable(data, kws) {
+  document.getElementById('compare-table').innerHTML = `
+    <tr><th>Keyword</th><th>Current</th><th>Peak</th><th>Avg</th><th>Trend</th></tr>
+    ${kws.map((kw, i) => {
+      const d = data[kw];
+      if (!d) return `<tr><td><span class="kw-dot" style="background:${PALETTE[i%PALETTE.length]}"></span>${kw}</td><td colspan="4" style="color:var(--dim);font-size:.82rem">No data returned</td></tr>`;
+      return `<tr>
+        <td><span class="kw-dot" style="background:${PALETTE[i%PALETTE.length]}"></span>${kw}</td>
+        <td style="font-family:var(--serif);font-size:1.1rem;color:${PALETTE[i%PALETTE.length]}">${d.current}</td>
+        <td>${d.peak}</td><td>${d.avg}</td>
+        <td class="${d.trend}">${ti(d.trend)} ${d.trend}</td>
+      </tr>`;
+    }).join('')}`;
+}
+
+// ── Analysis ───────────────────────────────────────────────────────
+async function runAnalysis(data, contentId, loadingId, tfLabel, groupName) {
+  const loading = document.getElementById(loadingId);
+  const content = document.getElementById(contentId);
+  loading.style.display = 'flex';
+  content.style.display = 'none';
+  try {
+    const r = await postJSON('/api/analyze', { data, timeframe_label: tfLabel, group_name: groupName });
+    const result = await r.json();
+    renderAnalysis(result, content);
+    content.style.display = 'block';
+  } catch(e) { console.error(e); }
+  finally { loading.style.display = 'none'; }
+}
+
+async function runRegionAnalysis(data, keyword) {
+  const loading = document.getElementById('rc-analysis-loading');
+  const content = document.getElementById('rc-analysis-content');
+  loading.style.display = 'flex';
+  content.style.display = 'none';
+  const tfLabel = document.querySelector('#view-region-compare .tf-btn.active')?.textContent || '3M';
+  try {
+    const r = await postJSON('/api/analyze-regions', { data, keyword, timeframe_label: tfLabel });
+    const result = await r.json();
+    renderAnalysis(result, content);
+    content.style.display = 'block';
+  } catch(e) { console.error(e); }
+  finally { loading.style.display = 'none'; }
+}
+
+function renderAnalysis(result, el) {
+  const signals = (result.signals || []).map(s => `
+    <div class="signal" data-type="${s.type}">
+      <div class="signal-label">${sigLabel(s.type)}</div>
+      <div class="signal-text">${s.text}</div>
+    </div>`).join('') || '<div style="color:var(--dim);font-size:.82rem">No strong signals detected in current data.</div>';
+
+  const fcChips = Object.entries(result.forecasts || {}).map(([kw, fc]) => {
+    const dir = fc.slope > 0.03 ? 'up' : fc.slope < -0.03 ? 'down' : '';
+    const arr = dir === 'up' ? '↑' : dir === 'down' ? '↓' : '→';
+    const proj = fc.values?.[fc.values.length - 1] ?? '—';
+    return `<div class="forecast-chip ${dir}">${arr} ${kw}: ~${proj}</div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="analysis-summary">${result.summary || ''}</div>
+    ${fcChips ? `<div class="forecast-row">${fcChips}</div>` : ''}
+    <div class="signal-grid">${signals}</div>
+    ${result.prediction ? `<div class="analysis-prediction"><strong>Outlook</strong>${result.prediction}</div>` : ''}
+  `;
+}
+
+function sigLabel(type) {
+  return { accelerating: 'Accelerating', velocity: 'Gaining velocity', velocity_down: 'Losing velocity', peak: 'At / near peak', convergence: 'Convergence alert', declining: 'Declining', volatile: 'Drop-driven volatility', steady: 'Structurally steady' }[type] || type;
+}
+
+// ── Util ───────────────────────────────────────────────────────────
+function ti(t) { return t === 'rising' ? '↑' : t === 'falling' ? '↓' : '→'; }
+function show(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+function showL(id) { const el = document.getElementById(id); if (el) el.style.display = 'flex'; }
+function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+
+init();
+</script>
+</body>
+</html>

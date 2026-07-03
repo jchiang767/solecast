@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# macOS
+.DS_Store
+
+# Editor / tooling
+.claude/
+
+# Runtime config (optional — remove this line if you want to ship your keyword setup)
+# config.json
