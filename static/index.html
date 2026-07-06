@@ -38,6 +38,49 @@ body {
   min-height: 100vh;
 }
 
+/* ── Motion ───────────────────────────────────────────────────── */
+@keyframes fadeUp   { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideDown{ from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
+main > section { animation: fadeUp .35s ease both; }
+.metrics .metric { animation: fadeUp .4s ease both; }
+.metrics .metric:nth-child(1) { animation-delay: .04s; }
+.metrics .metric:nth-child(2) { animation-delay: .10s; }
+.metrics .metric:nth-child(3) { animation-delay: .16s; }
+.metrics .metric:nth-child(4) { animation-delay: .22s; }
+.metrics .metric:nth-child(5) { animation-delay: .28s; }
+.breakout-grid .breakout-card { animation: fadeUp .4s ease both; }
+.breakout-grid .breakout-card:nth-child(1) { animation-delay: .04s; }
+.breakout-grid .breakout-card:nth-child(2) { animation-delay: .09s; }
+.breakout-grid .breakout-card:nth-child(3) { animation-delay: .14s; }
+.breakout-grid .breakout-card:nth-child(4) { animation-delay: .19s; }
+.breakout-grid .breakout-card:nth-child(5) { animation-delay: .24s; }
+.breakout-grid .breakout-card:nth-child(6) { animation-delay: .29s; }
+.breakout-grid .breakout-card:nth-child(7) { animation-delay: .34s; }
+.breakout-grid .breakout-card:nth-child(8) { animation-delay: .39s; }
+.chart-wrap, .analysis-panel { animation: fadeUp .45s ease both; }
+.signal-grid .signal { animation: fadeUp .35s ease both; }
+.signal-grid .signal:nth-child(1) { animation-delay: .05s; }
+.signal-grid .signal:nth-child(2) { animation-delay: .12s; }
+.signal-grid .signal:nth-child(3) { animation-delay: .19s; }
+.signal-grid .signal:nth-child(4) { animation-delay: .26s; }
+.signal-grid .signal:nth-child(5) { animation-delay: .33s; }
+.signal-grid .signal:nth-child(6) { animation-delay: .40s; }
+.compare-table tr, .related-table tr { animation: fadeIn .4s ease both; }
+#rate-limit-banner { animation: slideDown .28s ease both; }
+.ac-dropdown { animation: fadeIn .15s ease both; }
+
+.metric { transition: transform .18s ease; }
+.metric:hover { transform: translateY(-2px); }
+.breakout-card { transition: transform .18s ease, border-color .18s ease; }
+.breakout-card:hover { transform: translateY(-2px); border-color: var(--black); }
+.btn:active, .tf-btn:active, .rc-chip:active { transform: scale(.96); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
 /* ── Layout ───────────────────────────────────────────────────── */
 .shell { display: flex; min-height: 100vh; }
 nav {
@@ -769,6 +812,20 @@ select {
 const PALETTE = ['#1a56db','#c8391a','#1e7a3a','#b8850a','#7c3aab'];
 const PA = (i, a) => PALETTE[i % PALETTE.length] + Math.round(a * 255).toString(16).padStart(2, '0');
 
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function countUp(el, target, duration = 550) {
+  const num = parseFloat(target);
+  if (REDUCED_MOTION || !Number.isFinite(num)) { el.textContent = target; return; }
+  const start = performance.now();
+  function tick(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);   // ease-out cubic
+    el.textContent = Math.round(num * eased);
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 let dashChart = null, rcChart = null;
 let activeTimeframes = { dashboard: 'today 3-m', related: 'today 3-m', 'region-compare': 'today 3-m' };
 let dashKeywords = [];
@@ -1163,11 +1220,12 @@ function renderBreakout(items) {
     return `
     <div class="breakout-card">
       <div class="breakout-kw">${item.keyword}${tag}</div>
-      <div class="breakout-val">${item.current}</div>
+      <div class="breakout-val" data-target="${item.current}">0</div>
       <div class="breakout-momentum" style="color:${col}">${arrow} ${item.momentum > 0 ? '+' : ''}${item.momentum} momentum</div>
       <div class="breakout-spark"><canvas id="boc-${i}"></canvas></div>
     </div>`;
   }).join('');
+  grid.querySelectorAll('.breakout-val').forEach(el => countUp(el, el.dataset.target));
   items.forEach((item, i) => {
     const ctx = document.getElementById(`boc-${i}`).getContext('2d');
     new Chart(ctx, {
@@ -1282,14 +1340,15 @@ async function resetConfig() {
 
 // ── Metrics ────────────────────────────────────────────────────────
 function renderMetrics(id, data) {
-  document.getElementById(id).innerHTML = Object.entries(data).map(([kw, d], i) => {
+  const container = document.getElementById(id);
+  container.innerHTML = Object.entries(data).map(([kw, d], i) => {
     const color = PALETTE[i % PALETTE.length];
     const trend = d.trend || 'stable';
     const agg   = d.agg_countries ? `<div class="metric-agg">Avg: ${d.agg_countries.join(', ')}</div>` : '';
     return `
     <div class="metric" style="border-top-color:${color}">
       <div class="metric-kw">${kw}</div>
-      <div class="metric-val" style="color:${color}">${d.current}</div>
+      <div class="metric-val" data-target="${d.current}" style="color:${color}">0</div>
       <div class="metric-sub">
         <span class="metric-trend ${trend}">${ti(trend)} ${trend}</span>
         <span>Peak: ${d.peak}</span>
@@ -1298,6 +1357,7 @@ function renderMetrics(id, data) {
       ${agg}
     </div>`;
   }).join('');
+  container.querySelectorAll('.metric-val').forEach(el => countUp(el, el.dataset.target));
 }
 
 // ── Line chart ─────────────────────────────────────────────────────

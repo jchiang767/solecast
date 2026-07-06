@@ -1,8 +1,9 @@
 from flask import Flask, jsonify, request, send_from_directory
 from pytrends.request import TrendReq
-import json, os, time, hashlib, math
+import json, os, time, hashlib, math, pickle, threading
 import requests
 from urllib.parse import quote as _urlquote
+from concurrent.futures import ThreadPoolExecutor
 
 # ── Aggregate region definitions ──────────────────────────────────────────
 AGGREGATE_REGIONS = {
@@ -101,33 +102,105 @@ SNEAKER_TERMS = [
 app = Flask(__name__, static_folder='static')
 
 _cache = {}
-CACHE_TTL = 600
+CACHE_TTL = 6 * 3600            # serve as fresh for 6 hours
+CACHE_STALE_MAX = 7 * 24 * 3600 # keep up to 7 days as a rate-limit fallback
+CACHE_FILE = os.path.join(os.path.dirname(__file__), '.trends_cache.pkl')
 
 def _cache_key(*args):
     return hashlib.md5(json.dumps(args, sort_keys=True).encode()).hexdigest()
 
-def _cache_get(key):
-    if key in _cache:
-        ts, data = _cache[key]
-        if time.time() - ts < CACHE_TTL:
+_cache_io_lock = threading.Lock()
+
+def _cache_get(key, allow_stale=False):
+    entry = _cache.get(key)
+    if entry:
+        ts, data = entry
+        age = time.time() - ts
+        if age < CACHE_TTL or (allow_stale and age < CACHE_STALE_MAX):
             return data
-        del _cache[key]
     return None
 
 def _cache_set(key, data):
-    _cache[key] = (time.time(), data)
+    with _cache_io_lock:
+        _cache[key] = (time.time(), data)
+        now = time.time()
+        for k in [k for k, (ts, _) in _cache.items() if now - ts >= CACHE_STALE_MAX]:
+            del _cache[k]
+        try:
+            with open(CACHE_FILE, 'wb') as f:
+                pickle.dump(_cache, f)
+        except Exception:
+            pass
+
+# Load persisted cache at startup — restarting the server no longer means
+# re-hitting Google for everything you already fetched.
+try:
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, 'rb') as f:
+            _cache = pickle.load(f)
+except Exception:
+    _cache = {}
+
+# Global spacing between LIVE Google requests. Rapid bursts (e.g. Breakout's
+# per-keyword loop) are what trip the rate limit — enforce a minimum gap.
+# Thread-safe slot reservation so background refreshes queue behind user
+# requests instead of bursting alongside them.
+_last_google_call = 0.0
+_throttle_lock = threading.Lock()
+GOOGLE_MIN_INTERVAL = 2.5
+
+def _google_throttle():
+    global _last_google_call
+    with _throttle_lock:
+        slot = max(_last_google_call + GOOGLE_MIN_INTERVAL, time.time())
+        _last_google_call = slot
+    wait = slot - time.time()
+    if wait > 0:
+        time.sleep(wait)
 
 def _get_pytrends():
     return TrendReq(hl='en-US', tz=360, timeout=(10, 20))
+
+_refresh_inflight = set()
+_refresh_lock = threading.Lock()
+
+def _refresh_in_background(keywords, timeframe, geo, key):
+    """Quietly re-fetch an expired cache entry without making the user wait."""
+    def _job():
+        try:
+            _google_throttle()
+            pt = _get_pytrends()
+            pt.build_payload(keywords, timeframe=timeframe, geo=geo)
+            df = pt.interest_over_time()
+            if df is not None and not df.empty:
+                _cache_set(key, df)
+        except Exception:
+            pass
+        finally:
+            with _refresh_lock:
+                _refresh_inflight.discard(key)
+    with _refresh_lock:
+        if key in _refresh_inflight:
+            return
+        _refresh_inflight.add(key)
+    threading.Thread(target=_job, daemon=True).start()
 
 def _trends_request_with_retry(keywords, timeframe, geo, max_retries=2):
     key = _cache_key('trends', sorted(keywords), timeframe, geo)
     cached = _cache_get(key)
     if cached is not None:
         return cached, True
+    # Stale-while-revalidate: anything fetched in the last 7 days returns
+    # INSTANTLY while a background thread refreshes it. Repeat use never
+    # waits on Google and never burns rate-limit budget in the foreground.
+    stale = _cache_get(key, allow_stale=True)
+    if stale is not None:
+        _refresh_in_background(keywords, timeframe, geo, key)
+        return stale, True
     last_err = None
     for attempt in range(max_retries):
         try:
+            _google_throttle()
             pt = _get_pytrends()
             pt.build_payload(keywords, timeframe=timeframe, geo=geo)
             df = pt.interest_over_time()
@@ -349,6 +422,10 @@ def _wiki_article(keyword, project="en.wikipedia"):
         return None
 
 def _wiki_series(keyword, timeframe, project="en.wikipedia"):
+    ck = _cache_key('wiki', keyword.lower(), timeframe, project)
+    cached = _cache_get(ck)
+    if cached is not None:
+        return cached
     art = _wiki_article(keyword, project)
     if not art:
         return None
@@ -377,15 +454,18 @@ def _wiki_series(keyword, timeframe, project="en.wikipedia"):
         ts = it["timestamp"]
         d = f"{ts[:4]}-{ts[4:6]}-01" if monthly else f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}"
         by_date[d] = it["views"]
-    return {"title": title, "by_date": by_date}
+    result = {"title": title, "by_date": by_date}
+    _cache_set(ck, result)
+    return result
 
 def _fetch_wikipedia(keywords, timeframe, geo=""):
     project = WIKI_PROJECT_BY_GEO.get(geo, "en.wikipedia")
     raw = {}
-    for kw in keywords:
-        s = _wiki_series(kw, timeframe, project)
-        if s:
-            raw[kw] = s
+    # fetch keywords in parallel — Wikipedia has no meaningful rate limit
+    with ThreadPoolExecutor(max_workers=min(5, max(len(keywords), 1))) as ex:
+        for kw, s in zip(keywords, ex.map(lambda k: _wiki_series(k, timeframe, project), keywords)):
+            if s:
+                raw[kw] = s
     if not raw:
         return None
     # common date axis = union of all dates any keyword actually has data for
@@ -461,7 +541,11 @@ def _fetch_reddit(keywords, timeframe, geo=""):
     axis = _date_axis(timeframe, monthly=monthly)
     raw = {}
     for kw in keywords:
-        posts = _reddit_search_posts(kw, timeframe, token)
+        ck = _cache_key('reddit', kw.lower(), timeframe)
+        posts = _cache_get(ck)
+        if posts is None:
+            posts = _reddit_search_posts(kw, timeframe, token)
+            _cache_set(ck, posts)
         buckets = {d: 0 for d in axis}
         for p in posts:
             d = _dt.utcfromtimestamp(p.get("created_utc", 0)).date()
@@ -470,7 +554,6 @@ def _fetch_reddit(keywords, timeframe, geo=""):
                 # weight by engagement so a viral post counts more than a dead one
                 buckets[key] += 1 + math.log1p(max(0, p.get("score", 0)) + max(0, p.get("num_comments", 0)))
         raw[kw] = [buckets[d] for d in axis]
-        time.sleep(0.3)
     if all(sum(v) == 0 for v in raw.values()):
         return None
     gmax = max((max(v) for v in raw.values() if v), default=1) or 1
@@ -564,10 +647,16 @@ def suggest():
         _matches,
         key=lambda t: (not t.lower().startswith(q), t.lower())
     )[:6]
+    # Autocomplete used to fire a Google request on every keystroke, quietly
+    # burning the rate-limit budget. Only ask Google when the curated list
+    # can't answer (few matches) and the query is specific enough.
+    if len(curated) >= 3 or len(q) < 4:
+        return jsonify(curated[:8])
     key = _cache_key('suggest', q)
     gt = _cache_get(key)
     if gt is None:
         try:
+            _google_throttle()
             pt = _get_pytrends()
             raw = pt.suggestions(q)
             gt = [s['title'] for s in raw][:5]
@@ -672,7 +761,6 @@ def region_compare():
                     raise Exception('empty')
                 resp = _build_result(keywords, df, False)
             results[label] = resp
-            time.sleep(0.6)
         except Exception:
             # Fall back to sample data for this region so the chart still renders.
             # Seed with the region label so each region gets a DISTINCT curve.
@@ -729,6 +817,7 @@ def get_related():
     if cached:
         return jsonify(cached)
     try:
+        _google_throttle()
         pt = _get_pytrends()
         pt.build_payload([keyword], timeframe=timeframe)
         rel = pt.related_queries()
@@ -748,6 +837,10 @@ def get_related():
         return jsonify(result)
     except Exception as e:
         msg = str(e)
+        # Older cached related data is still real data — prefer it over nothing
+        stale = _cache_get(key, allow_stale=True)
+        if stale:
+            return jsonify(stale)
         reason = "rate_limit" if ('429' in msg or 'Too Many' in msg) else "network"
         return jsonify({"rising": [], "top": [], "_meta": {"unavailable": True, "reason": reason}})
 
@@ -770,8 +863,13 @@ def get_breakout():
     # Alternative sources: fetch each keyword on its own scale, compute momentum
     if source in ('wikipedia', 'reddit'):
         fetch = _fetch_wikipedia if source == 'wikipedia' else _fetch_reddit
-        for kw in keywords:
-            data = fetch([kw], 'today 3-m', '')
+        if source == 'wikipedia':
+            # Wikipedia has no rate limit — scan all keywords in parallel
+            with ThreadPoolExecutor(max_workers=4) as ex:
+                pairs = list(zip(keywords, ex.map(lambda k: fetch([k], 'today 3-m', ''), keywords)))
+        else:
+            pairs = [(kw, fetch([kw], 'today 3-m', '')) for kw in keywords]
+        for kw, data in pairs:
             if isinstance(data, dict) and data.get('_error') == 'reddit_setup':
                 return jsonify({"_meta": {"unavailable": True, "reason": "reddit_setup", "source": source}})
             if not data or kw not in data:
@@ -801,8 +899,7 @@ def get_breakout():
                 "momentum": _momentum_of(series), "values": series,
                 "dates": [str(d.date()) for d in df.index], "sample": False,
             })
-            if not from_cache:
-                time.sleep(0.7)   # be gentle between live requests
+            # spacing between live requests is handled by _google_throttle()
         except Exception:
             # Fall back to sample for just this keyword so its card still renders
             sample = _generate_sample_data([kw], 'today 3-m', seed_extra='breakout')
@@ -832,7 +929,6 @@ def _fetch_aggregate_data(keywords, timeframe, agg_geo):
             df, _ = _trends_request_with_retry(keywords, timeframe, country)
             if df is not None and not (hasattr(df, 'empty') and df.empty):
                 country_dfs[country] = df
-            time.sleep(0.5)
         except Exception as e:
             if '429' in str(e) or 'Too Many' in str(e):
                 return {"error": "Rate limited. Wait 60s.", "rate_limited": True, "status": 429}
@@ -1326,6 +1422,50 @@ def _calc_trend(values):
     if diff > 10:  return "rising"
     if diff < -10: return "falling"
     return "stable"
+
+# ── Background cache warmer ───────────────────────────────────────────────
+# Slowly pre-fetches every configured keyword group + micro-trend so normal
+# use is served instantly from cache instead of live Google requests. Paces
+# itself well below the rate limit and backs off hard on 429.
+_prefetch_started = False
+_prefetch_lock = threading.Lock()
+
+def _prefetch_worker():
+    time.sleep(5)   # let the server settle first
+    cfg = load_config()
+    # Wikipedia first: free, unlimited, makes the Wikipedia source instant
+    for kws in cfg.get('keyword_groups', {}).values():
+        try:
+            _fetch_wikipedia(kws[:5], 'today 3-m', '')
+        except Exception:
+            pass
+    # Then Google, very gently: one group/term at a time, extra spacing
+    jobs = [(kws[:5], 'today 3-m', '') for kws in cfg.get('keyword_groups', {}).values()]
+    jobs += [([kw], 'today 3-m', '') for kw in cfg.get('micro_trends', [])]
+    for keywords, tf, geo in jobs:
+        key = _cache_key('trends', sorted(keywords), tf, geo)
+        if _cache_get(key) is not None:
+            continue   # already fresh — costs nothing
+        try:
+            _google_throttle()
+            time.sleep(3)   # background work must never crowd out the user
+            pt = _get_pytrends()
+            pt.build_payload(keywords, timeframe=tf, geo=geo)
+            df = pt.interest_over_time()
+            if df is not None and not df.empty:
+                _cache_set(key, df)
+        except Exception as e:
+            if '429' in str(e) or 'Too Many' in str(e):
+                time.sleep(180)   # limited: back off, resume warming later
+
+@app.before_request
+def _start_prefetch():
+    global _prefetch_started
+    with _prefetch_lock:
+        if _prefetch_started:
+            return
+        _prefetch_started = True
+    threading.Thread(target=_prefetch_worker, daemon=True).start()
 
 if __name__ == '__main__':
     app.run(debug=True, port=5050)
