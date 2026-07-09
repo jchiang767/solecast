@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Solecast — Sneaker Trend Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 /* ── Reset & base ─────────────────────────────────────────────── */
@@ -25,7 +25,8 @@
   --rising:     #1e7a3a;
   --falling:    #b83222;
   --stable:     #6b6860;
-  --serif:      'Abril Fatface', Georgia, serif;
+  --serif:      'Lato', system-ui, sans-serif;
+  --display-w:  900;
   --sans:       'Lato', system-ui, sans-serif;
 }
 html { font-size: 16px; }
@@ -82,58 +83,56 @@ main > section { animation: fadeUp .35s ease both; }
 }
 
 /* ── Layout ───────────────────────────────────────────────────── */
-.shell { display: flex; min-height: 100vh; }
+.shell { display: block; min-height: 100vh; }
 nav {
-  width: 200px; flex-shrink: 0;
-  border-right: 1px solid var(--rule);
-  padding: 40px 0;
-  display: flex; flex-direction: column;
-  position: sticky; top: 0; height: 100vh;
+  position: sticky; top: 0; z-index: 800;
+  display: flex; align-items: center; gap: 18px;
+  padding: 14px 32px;
+  border-bottom: 1px solid var(--rule);
   background: var(--white);
-  overflow-y: auto;
+  flex-wrap: wrap;
 }
 main {
-  flex: 1;
-  padding: 48px 52px;
-  max-width: 1200px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 44px 52px;
 }
 
-/* ── Nav ──────────────────────────────────────────────────────── */
-.nav-logo {
-  padding: 0 28px 32px;
-  border-bottom: 1px solid var(--rule);
-}
+/* ── Nav (horizontal top bar) ─────────────────────────────────── */
+.nav-logo { display: flex; flex-direction: column; margin-right: 12px; }
 .nav-logo h1 {
   font-family: var(--serif);
-  font-size: 1.35rem;
-  letter-spacing: .02em;
+  font-weight: var(--display-w);
+  font-size: 1.3rem;
+  letter-spacing: -.01em;
   line-height: 1;
 }
 .nav-logo p {
-  font-size: .65rem;
+  font-size: .55rem;
   color: var(--dim);
-  letter-spacing: .15em;
+  letter-spacing: .18em;
   text-transform: uppercase;
-  margin-top: 4px;
+  margin-top: 3px;
   font-weight: 700;
 }
-.nav-links { padding: 24px 0; flex: 1; }
+.nav-links { display: flex; flex: 1; gap: 2px; flex-wrap: wrap; }
 .nav-link {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 28px;
-  font-size: .78rem;
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 10px;
+  font-size: .74rem;
   font-weight: 700;
   letter-spacing: .10em;
   text-transform: uppercase;
   color: var(--dim);
   cursor: pointer;
-  border: none; background: none; width: 100%; text-align: left;
+  border: none; background: none; width: auto; text-align: left;
   transition: color .15s;
   position: relative;
+  white-space: nowrap;
 }
 .nav-link .nav-num {
   font-family: var(--sans);
-  font-size: .68rem;
+  font-size: .66rem;
   font-weight: 300;
   letter-spacing: 0;
   color: var(--mid);
@@ -143,31 +142,29 @@ main {
 .nav-link.active::before {
   content: '';
   position: absolute;
-  left: 0;
-  width: 2px; height: 22px;
+  left: 10px; right: 10px; bottom: 0;
+  width: auto; height: 2px;
   background: var(--black);
-  border-radius: 0 2px 2px 0;
+  border-radius: 0;
 }
 
-/* ── Source picker (sidebar) ──────────────────────────────────── */
-.source-picker { padding: 20px 28px 4px; border-top: 1px solid var(--rule); margin-top: auto; }
-.source-picker .source-label {
-  font-size: .62rem; font-weight: 700; letter-spacing: .15em;
-  text-transform: uppercase; color: var(--dim); margin-bottom: 8px;
-}
-.source-seg { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--rule); }
+/* ── Source picker (top bar, compact) ─────────────────────────── */
+.source-picker { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.source-picker .source-label { display: none; }
+.source-seg { display: flex; flex-direction: row; gap: 0; border: 1px solid var(--rule); }
 .source-seg button {
-  background: transparent; border: none; border-bottom: 1px solid var(--rule);
-  color: var(--dim); font-family: var(--sans); font-size: .72rem; font-weight: 700;
-  letter-spacing: .06em; text-transform: uppercase; padding: 8px 10px;
-  cursor: pointer; text-align: left; transition: all .12s;
+  background: transparent; border: none; border-right: 1px solid var(--rule);
+  color: var(--dim); font-family: var(--sans); font-size: .64rem; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; padding: 7px 10px;
+  cursor: pointer; text-align: center; transition: all .12s; white-space: nowrap;
 }
-.source-seg button:last-child { border-bottom: none; }
+.source-seg button:last-child { border-right: none; }
 .source-seg button.active { background: var(--black); color: var(--white); }
 .source-seg button:hover:not(.active) { color: var(--black); }
 .source-info-btn {
   background: none; border: none; color: var(--dim); cursor: pointer;
-  font-family: var(--sans); font-size: .68rem; padding: 8px 0 0; text-decoration: underline;
+  font-family: var(--sans); font-size: .8rem; padding: 0; text-decoration: none;
+  line-height: 1;
 }
 .source-info-btn:hover { color: var(--black); }
 
@@ -178,7 +175,7 @@ main {
 }
 .source-note strong {
   display: block; font-family: var(--serif); font-size: 1.2rem;
-  color: var(--black); font-weight: 400; margin-bottom: 6px;
+  color: var(--black); font-weight: var(--display-w); margin-bottom: 6px;
 }
 .src-table { width: 100%; border-collapse: collapse; margin: 4px 0 8px; }
 .src-table th, .src-table td { text-align: left; padding: 10px 12px; font-size: .82rem; vertical-align: top; border-bottom: 1px solid var(--rule); }
@@ -205,10 +202,10 @@ main {
 .view-header { margin-bottom: 36px; }
 .view-header h2 {
   font-family: var(--serif);
-  font-size: 2.2rem;
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: .01em;
+  font-size: 2.1rem;
+  font-weight: var(--display-w);
+  line-height: 1.05;
+  letter-spacing: -.02em;
   margin-bottom: 8px;
 }
 .view-header p {
@@ -229,6 +226,8 @@ main {
 /* ── Section labels ───────────────────────────────────────────── */
 .section-title {
   font-family: var(--serif);
+  font-weight: var(--display-w);
+  letter-spacing: -.01em;
   font-size: 1.1rem;
   margin-bottom: 14px;
 }
@@ -337,7 +336,7 @@ select {
 .metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1px; background: var(--rule); margin-bottom: 28px; }
 .metric { background: var(--white); padding: 18px 16px; border-top: 3px solid transparent; }
 .metric-kw { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.metric-val { font-family: var(--serif); font-size: 2rem; line-height: 1; margin-bottom: 4px; }
+.metric-val { font-family: var(--serif); font-weight: var(--display-w); letter-spacing: -.02em; font-size: 2rem; line-height: 1; margin-bottom: 4px; }
 .metric-sub { font-size: .72rem; color: var(--dim); display: flex; gap: 8px; flex-wrap: wrap; }
 .metric-trend { font-weight: 700; }
 .rising  { color: var(--rising); }
@@ -377,7 +376,8 @@ select {
   border: 1px solid var(--rule); background: var(--surface);
 }
 .analysis-prediction strong {
-  font-family: var(--serif); font-size: .95rem; font-weight: 400;
+  font-family: var(--serif); font-size: .82rem; font-weight: 900;
+  letter-spacing: .08em; text-transform: uppercase;
   display: block; margin-bottom: 6px;
 }
 
@@ -430,7 +430,7 @@ select {
 .breakout-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
 .breakout-card { border: 1px solid var(--rule); padding: 18px; overflow: hidden; }
 .breakout-kw { font-size: .72rem; font-weight: 700; letter-spacing: .10em; text-transform: uppercase; margin-bottom: 8px; color: var(--dim); }
-.breakout-val { font-family: var(--serif); font-size: 2rem; line-height: 1; }
+.breakout-val { font-family: var(--serif); font-weight: var(--display-w); letter-spacing: -.02em; font-size: 2rem; line-height: 1; }
 .breakout-momentum { font-size: .78rem; font-weight: 700; margin-top: 4px; }
 .breakout-spark { position: relative; height: 50px; margin-top: 12px; width: 100%; }
 .breakout-spark canvas { width: 100% !important; height: 100% !important; }
@@ -448,7 +448,7 @@ select {
 
 /* ── Config ───────────────────────────────────────────────────── */
 .config-group { margin-bottom: 28px; }
-.config-group h3 { font-family: var(--serif); font-size: 1rem; margin-bottom: 10px; font-weight: 400; }
+.config-group h3 { font-family: var(--serif); font-size: 1rem; margin-bottom: 10px; font-weight: 900; letter-spacing: -.01em; }
 .config-textarea {
   width: 100%; font-family: var(--sans); font-size: .82rem;
   border: 1px solid var(--rule); padding: 12px; resize: vertical;
@@ -461,6 +461,129 @@ select {
 .loading { display: none; align-items: center; gap: 12px; font-size: .85rem; color: var(--dim); padding: 32px 0; }
 .loading svg { animation: spin 1.2s linear infinite; }
 .spinner-svg { stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+
+/* ── The Report: editorial moodboard ──────────────────────────── */
+.rt-edition {
+  font-size: .72rem; font-weight: 900; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--dim); margin-bottom: 14px;
+}
+.rt-tabs { margin-bottom: 18px; flex-wrap: wrap; }
+.rt-intro { font-size: .95rem; line-height: 1.7; color: var(--ink); max-width: 680px; margin-bottom: 26px; }
+/* Masonry moodboard — cards size to content, nothing clips */
+.rt-grid { column-count: 3; column-gap: 16px; padding-bottom: 80px; }
+@media (max-width: 1000px) { .rt-grid { column-count: 2; } }
+@media (max-width: 640px)  { .rt-grid { column-count: 1; } }
+.rt-card {
+  position: relative; break-inside: avoid; -webkit-column-break-inside: avoid;
+  display: inline-block; width: 100%; margin: 0 0 16px;
+  overflow: hidden; animation: fadeUp .4s ease both;
+}
+/* two prominent cards per region get emphasis */
+.rt-large { column-span: none; }
+.rt-large .rt-title { font-size: 1.75rem; }
+.rt-large .rt-body  { font-size: .86rem; }
+.rt-inner { padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.rt-sector { font-size: .62rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; opacity: .75; }
+.rt-title { font-family: var(--serif); font-weight: 900; letter-spacing: -.01em; font-size: 1.25rem; line-height: 1.15; }
+.rt-body { font-size: .82rem; line-height: 1.6; opacity: .92; }
+.rt-dir { font-size: .8rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+.rt-refs { font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; opacity: .7; margin-top: 2px; }
+.rt-img { position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; background: var(--surface); }
+.rt-wide .rt-img, .rt-small .rt-img { aspect-ratio: 4 / 3; }
+.rt-img img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1) contrast(1.04); }
+.rt-img-broken { aspect-ratio: auto; height: 0; }
+.rt-img-broken img { display: none; }
+.rt-ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.rt-ph span {
+  font-weight: 900; letter-spacing: .32em; font-size: .74rem; color: #fff;
+  mix-blend-mode: difference; transform: rotate(-16deg);
+  border: 2px solid #fff; padding: 6px 16px 6px 20px; white-space: nowrap;
+}
+
+/* ── Google usage meter (top bar) ─────────────────────────────── */
+#usage-meter {
+  display: none; align-items: center; gap: 7px; cursor: default;
+  font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--dim); white-space: nowrap; position: relative;
+}
+#usage-meter .um-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mid); transition: background .3s; }
+#usage-meter.ok      .um-dot { background: var(--rising); }
+#usage-meter.caution .um-dot { background: var(--c3); }
+#usage-meter.limited .um-dot { background: var(--falling); animation: umPulse 1.4s ease-in-out infinite; }
+@keyframes umPulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+#usage-meter .um-bar { width: 46px; height: 4px; background: var(--surface); overflow: hidden; }
+#usage-meter .um-fill { height: 100%; width: 0; background: var(--rising); transition: width .4s, background .3s; }
+#usage-meter.caution .um-fill { background: var(--c3); }
+#usage-meter.limited .um-fill { background: var(--falling); }
+#usage-meter .um-tip {
+  display: none; position: absolute; top: 130%; right: 0; z-index: 950;
+  background: var(--black); color: var(--white); padding: 10px 12px; width: 230px;
+  font-size: .68rem; font-weight: 400; letter-spacing: 0; text-transform: none;
+  line-height: 1.5; text-align: left;
+}
+#usage-meter:hover .um-tip { display: block; }
+
+/* ── The door ─────────────────────────────────────────────────── */
+#edit-door {
+  position: fixed; right: 22px; bottom: 22px; z-index: 900;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--white); border: 1px solid var(--rule);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--black); box-shadow: 0 2px 12px rgba(0,0,0,.10);
+  transition: transform .2s ease, border-color .2s;
+}
+#edit-door:hover { transform: translateY(-3px); border-color: var(--black); }
+#edit-door svg { overflow: visible; animation: doorNudge 9s ease-in-out infinite; }
+.door-light { opacity: 0; transition: opacity .35s; fill: #f2c94c; }
+.door-panel { transform-box: fill-box; transform-origin: left center; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+#edit-door:hover .door-panel, #edit-door.door-open-state .door-panel { transform: perspective(120px) rotateY(-58deg); }
+#edit-door:hover .door-light,  #edit-door.door-open-state .door-light  { opacity: 1; }
+#edit-door.door-open-state { border-color: var(--black); }
+@keyframes doorNudge { 0%, 92%, 100% { transform: rotate(0); } 94% { transform: rotate(-6deg); } 96% { transform: rotate(5deg); } 98% { transform: rotate(-2deg); } }
+
+/* ── Password modal ───────────────────────────────────────────── */
+#door-modal {
+  display: none; position: fixed; inset: 0; z-index: 950;
+  background: rgba(13,13,13,.45); align-items: center; justify-content: center;
+}
+#door-box { background: var(--white); border: 1px solid var(--black); padding: 28px; width: 330px; animation: fadeUp .25s ease both; }
+.door-box-title { font-family: var(--serif); font-weight: 900; font-size: 1.2rem; margin-bottom: 6px; }
+#door-pass { width: 100%; margin-top: 10px; }
+#door-err { color: var(--falling); font-size: .75rem; margin-top: 6px; min-height: 1em; font-weight: 700; }
+.shake { animation: shakeX .4s ease; }
+@keyframes shakeX { 0%,100% { transform: none; } 20% { transform: translateX(-8px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+
+/* ── Edit mode ────────────────────────────────────────────────── */
+.rt-editbar {
+  display: none; position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  z-index: 900; background: var(--black); color: var(--white);
+  padding: 10px 16px; gap: 10px; align-items: center;
+  animation: slideDown .25s ease both;
+}
+.rt-editing-label { font-size: .62rem; font-weight: 900; letter-spacing: .22em; text-transform: uppercase; padding-right: 4px; }
+.rt-editbar .btn { background: var(--white); color: var(--black); padding: 7px 16px; font-size: .7rem; }
+.rt-editbar .btn-outline { background: transparent; color: var(--white); border: 1px solid #555; }
+.rt-strip { display: flex; gap: 6px; align-items: center; padding: 8px; background: rgba(13,13,13,.88); flex-wrap: wrap; }
+.rt-strip select, .rt-strip input[type=text] { font-size: .65rem; padding: 4px 6px; border: 1px solid #666; background: #1c1c1c; color: #eee; }
+.rt-strip input[type=text] { flex: 1; min-width: 60px; }
+.rt-strip input[type=color] { width: 26px; height: 24px; padding: 0; border: 1px solid #666; background: none; cursor: pointer; }
+.rt-strip label { color: #ccc; font-size: .6rem; font-weight: 700; display: flex; gap: 3px; align-items: center; cursor: pointer; }
+.rt-strip button { background: #333; color: #eee; border: none; width: 24px; height: 24px; cursor: pointer; font-size: .7rem; }
+.rt-strip .rt-del { background: #7a2a1e; }
+.rt-editable { outline: 1px dashed rgba(127,127,127,.55); outline-offset: 2px; }
+.rt-editable:focus { outline: 1.5px solid var(--c0); }
+.rt-add {
+  grid-column: span 1; grid-row: span 2; border: 2px dashed var(--rule); background: none;
+  cursor: pointer; font-family: var(--sans); font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; font-size: .72rem; color: var(--dim);
+}
+.rt-add:hover { border-color: var(--black); color: var(--black); }
+#rt-toast {
+  display: none; position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%);
+  background: var(--black); color: var(--white); padding: 8px 18px;
+  font-size: .75rem; font-weight: 700; letter-spacing: .08em; z-index: 960;
+  animation: fadeUp .25s ease both;
+}
 
 /* ── Misc ─────────────────────────────────────────────────────── */
 .hidden { display: none; }
@@ -481,10 +604,17 @@ select {
   </div>
   <div class="nav-links">
     <button class="nav-link active" onclick="showView('dashboard')"><span class="nav-num">01</span> Dashboard</button>
-    <button class="nav-link" onclick="showView('region-compare')"><span class="nav-num">02</span> Regions</button>
-    <button class="nav-link" onclick="showView('breakout')"><span class="nav-num">03</span> Breakout</button>
-    <button class="nav-link" onclick="showView('related')"><span class="nav-num">04</span> Related</button>
-    <button class="nav-link" onclick="showView('config')"><span class="nav-num">05</span> Configure</button>
+    <button class="nav-link" onclick="showView('report')"><span class="nav-num">02</span> The Report</button>
+    <button class="nav-link" onclick="showView('region-compare')"><span class="nav-num">03</span> Regions</button>
+    <button class="nav-link" onclick="showView('breakout')"><span class="nav-num">04</span> Breakout</button>
+    <button class="nav-link" onclick="showView('related')"><span class="nav-num">05</span> Related</button>
+    <button class="nav-link" onclick="showView('config')"><span class="nav-num">06</span> Configure</button>
+  </div>
+  <div id="usage-meter">
+    <span class="um-dot"></span>
+    <span class="um-bar"><span class="um-fill" id="um-fill"></span></span>
+    <span id="um-text">Google 0/45</span>
+    <div class="um-tip" id="um-tip"></div>
   </div>
   <div class="source-picker">
     <div class="source-label">Data Source</div>
@@ -493,7 +623,7 @@ select {
       <button data-source="wikipedia" onclick="setSource('wikipedia')">Wikipedia</button>
       <button data-source="reddit" onclick="setSource('reddit')">Reddit</button>
     </div>
-    <button class="source-info-btn" onclick="showView('config')">ⓘ How these differ</button>
+    <button class="source-info-btn" onclick="showView('config')" title="How these sources differ — see Configure">ⓘ</button>
   </div>
 </nav>
 
@@ -582,11 +712,62 @@ select {
 </section>
 
 <!-- ════════════════════════════════════════════════════════════ -->
-<!-- 02 REGION COMPARE                                           -->
+<!-- 02 THE REPORT                                               -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="view-report" class="hidden">
+  <div class="view-header">
+    <div class="view-meta">02 — The Report</div>
+    <h2>Weekly Trend Report</h2>
+    <p>A curated editorial breakdown of what's moving in fashion, streetwear, and footwear around the world — by region, across scenes and subcultures. Cards marked PLACEHOLDER carry stand-in imagery until the real shots are curated in.</p>
+  </div>
+
+  <div class="rt-edition" id="rt-edition"></div>
+  <div class="tf-bar rt-tabs" id="rt-tabs"></div>
+  <p class="rt-intro" id="rt-intro"></p>
+  <div class="rt-grid" id="rt-grid"></div>
+
+  <!-- Floating edit bar (visible in edit mode) -->
+  <div class="rt-editbar" id="rt-editbar">
+    <span class="rt-editing-label">Editing</span>
+    <button class="btn" onclick="saveReport()">Save</button>
+    <button class="btn btn-outline" onclick="exitReportEditConfirm()">Exit</button>
+  </div>
+
+  <!-- The door -->
+  <button id="edit-door" onclick="doorClick()" title="Editor access" aria-label="Open the editor">
+    <svg viewBox="0 0 44 44" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+      <rect class="door-light" x="13" y="9" width="18" height="30"/>
+      <g class="door-panel">
+        <rect x="13" y="9" width="18" height="30" rx="1.5" fill="currentColor"/>
+        <circle cx="27.5" cy="24" r="1.7" fill="#f6f5f1"/>
+      </g>
+      <rect x="11.5" y="7.5" width="21" height="33" rx="2" fill="none" stroke="currentColor" stroke-width="2.4"/>
+      <line x1="7" y1="40.6" x2="37" y2="40.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <!-- Password modal -->
+  <div id="door-modal">
+    <div id="door-box">
+      <div class="door-box-title">Editor Access</div>
+      <p class="text-dim text-sm">Enter the editor password to edit this page in place.</p>
+      <input type="password" id="door-pass" placeholder="Password" autocomplete="off" onkeydown="if(event.key==='Enter')doorSubmit()">
+      <div id="door-err"></div>
+      <div class="flex-row" style="margin-top:12px">
+        <button class="btn" onclick="doorSubmit()">Enter</button>
+        <button class="btn btn-outline" onclick="document.getElementById('door-modal').style.display='none'">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div id="rt-toast"></div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 03 REGION COMPARE                                           -->
 <!-- ════════════════════════════════════════════════════════════ -->
 <section id="view-region-compare" class="hidden">
   <div class="view-header">
-    <div class="view-meta">02 — Region Compare</div>
+    <div class="view-meta">03 — Region Compare</div>
     <h2>Region Compare</h2>
     <p>Track how a keyword performs across different markets simultaneously. Select 2–6 regions and a keyword to see search interest overlaid on a single chart — useful for spotting where a trend is gaining ground before it hits globally. Aggregate regions (EMEA All, APLA All, etc.) are computed as country averages.</p>
   </div>
@@ -650,7 +831,7 @@ select {
 <!-- ════════════════════════════════════════════════════════════ -->
 <section id="view-breakout" class="hidden">
   <div class="view-header">
-    <div class="view-meta">03 — Breakout Detection</div>
+    <div class="view-meta">04 — Breakout Detection</div>
     <h2>Breakout Detection</h2>
     <p>Scans your micro-trend keyword list and ranks each term by <strong>momentum</strong> — the difference between average search interest in the second half vs the first half of the past 3 months. A high positive score means a term is gaining fast. Cards at the top left are the hottest movers. Configure the keyword list in the <button onclick="showView('config')" style="background:none;border:none;color:var(--black);font-family:var(--sans);font-size:inherit;cursor:pointer;text-decoration:underline;font-weight:700;padding:0">Configure</button> view.</p>
   </div>
@@ -682,7 +863,7 @@ select {
 <!-- ════════════════════════════════════════════════════════════ -->
 <section id="view-related" class="hidden">
   <div class="view-header">
-    <div class="view-meta">04 — Related Queries</div>
+    <div class="view-meta">05 — Related Queries</div>
     <h2>Related Queries</h2>
     <p>Discover what else people search alongside a specific keyword. <strong>Breakout queries</strong> saw a massive recent spike relative to their normal volume — often a leading signal of early hype. <strong>Top queries</strong> are the most commonly co-searched terms overall, revealing the keyword's established audience and adjacent interests.</p>
   </div>
@@ -716,7 +897,7 @@ select {
   </div>
   <div id="related-results" class="hidden">
     <div id="related-unavailable" class="hidden" style="border:1px solid var(--rule); padding:28px; color:var(--dim); font-size:.9rem; line-height:1.6">
-      <strong style="display:block; font-family:var(--serif); font-size:1.2rem; color:var(--black); font-weight:400; margin-bottom:6px">No live related data</strong>
+      <strong style="display:block; font-family:var(--serif); font-size:1.2rem; color:var(--black); font-weight:900; letter-spacing:-.01em; margin-bottom:6px">No live related data</strong>
     </div>
     <div id="related-tables" class="hidden">
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:36px; margin-top:8px">
@@ -738,7 +919,7 @@ select {
 <!-- ════════════════════════════════════════════════════════════ -->
 <section id="view-config" class="hidden">
   <div class="view-header">
-    <div class="view-meta">05 — Configure</div>
+    <div class="view-meta">06 — Configure</div>
     <h2>Configure</h2>
     <p>Customize which keyword groups appear in the Dashboard dropdown, and which micro-trend terms the Breakout scanner watches. Each group supports up to 5 keywords (Google Trends limit). Edit the fields below and save — changes apply immediately without a server restart.</p>
   </div>
@@ -836,13 +1017,44 @@ function setSource(s) {
   activeSource = s;
   document.querySelectorAll('#source-seg button').forEach(b =>
     b.classList.toggle('active', b.dataset.source === s));
+  updateUsageMeter();
+}
+
+// ── Google usage meter ─────────────────────────────────────────────
+async function pollUsage() {
+  try {
+    const u = await (await fetch('/api/usage')).json();
+    window._usage = u;
+    renderUsageMeter(u);
+  } catch (e) { /* silent */ }
+}
+function renderUsageMeter(u) {
+  const m = document.getElementById('usage-meter');
+  // only relevant to Google (Wikipedia/Reddit aren't rate-limited the same way)
+  if (activeSource !== 'google') { m.style.display = 'none'; return; }
+  m.style.display = 'flex';
+  m.classList.remove('ok', 'caution', 'limited');
+  m.classList.add(u.status);
+  document.getElementById('um-fill').style.width = Math.min(100, Math.round(u.last_hour / u.cap * 100)) + '%';
+  document.getElementById('um-text').textContent = `Google ${u.last_hour}/${u.cap}`;
+  const tip = u.status === 'limited'
+    ? (u.recent_429
+        ? `Rate-limited by Google right now. The app is serving cached + sample data. Try again in ~${u.cooldown_s}s, or switch to Wikipedia — it isn't limited.`
+        : `You're near the safe hourly ceiling (${u.last_hour}/${u.cap}). Ease off Google or switch to Wikipedia to avoid a block.`)
+    : u.status === 'caution'
+      ? `${u.last_hour} Google requests this hour (${u.last_10min} in the last 10 min). Getting busy — cached results still cost nothing.`
+      : `${u.last_hour} Google requests this hour, ${u.last_10min} in the last 10 min. Plenty of headroom. ${u.cache_entries} results cached.`;
+  document.getElementById('um-tip').textContent = tip;
+}
+function updateUsageMeter() {
+  if (window._usage) renderUsageMeter(window._usage); else pollUsage();
 }
 
 // Human-readable reason when a source can't serve a view
 function unavailableMessage(meta) {
   const s = meta.source === 'wikipedia' ? 'Wikipedia' : meta.source === 'reddit' ? 'Reddit' : 'this source';
   switch (meta.reason) {
-    case 'reddit_setup':      return `Reddit needs setup. Add your Reddit app credentials in Configure (05) to enable it.`;
+    case 'reddit_setup':      return `Reddit needs setup. Add your Reddit app credentials in Configure (06) to enable it.`;
     case 'reddit_no_regions': return `Reddit has no geographic data, so Region Compare only works with Google Trends or Wikipedia (by language).`;
     case 'related_google_only': return `Related queries come from Google search — switch the Data Source to Google Trends to use this view.`;
     case 'rate_limit':        return `Google Trends is rate-limiting this IP. Wait a minute and retry.`;
@@ -894,7 +1106,7 @@ function showView(name) {
   document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
   document.getElementById('view-' + name).classList.remove('hidden');
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  const idx = ['dashboard','region-compare','breakout','related','config'].indexOf(name);
+  const idx = ['dashboard','report','region-compare','breakout','related','config'].indexOf(name);
   if (idx >= 0) document.querySelectorAll('.nav-link')[idx].classList.add('active');
 }
 
@@ -1175,7 +1387,7 @@ function renderRegionCompare(data, kw) {
     <tr><th>Region</th><th>Current</th><th>Peak</th><th>Avg</th><th>Trend</th></tr>
     ${rows.map(r => `<tr>
       <td><span class="kw-dot" style="background:${PALETTE[r.idx % PALETTE.length]}"></span>${r.label}</td>
-      <td style="font-family:var(--serif);font-size:1.1rem">${r.current}</td>
+      <td style="font-family:var(--serif);font-weight:900;font-size:1.1rem">${r.current}</td>
       <td>${r.peak}</td>
       <td>${r.avg}</td>
       <td class="${r.trend}">${r.trend !== '—' ? ti(r.trend) + ' ' + r.trend : '—'}</td>
@@ -1272,7 +1484,7 @@ async function runRelated() {
         : "Google returned no related-query data for this keyword";
       const head = d._meta.reason === 'related_google_only' ? 'Google Trends only' : 'No live related data';
       document.getElementById('related-unavailable').innerHTML =
-        `<strong style="display:block; font-family:var(--serif); font-size:1.2rem; color:var(--black); font-weight:400; margin-bottom:6px">${head}</strong>${why}.`;
+        `<strong style="display:block; font-family:var(--serif); font-size:1.2rem; color:var(--black); font-weight:900; letter-spacing:-.01em; margin-bottom:6px">${head}</strong>${why}.`;
       show('related-unavailable');
       hide('related-tables');
     } else {
@@ -1401,7 +1613,7 @@ function renderCompareTable(tableId, data, kws) {
       if (!d) return `<tr><td><span class="kw-dot" style="background:${PALETTE[i%PALETTE.length]}"></span>${kw}</td><td colspan="4" style="color:var(--dim);font-size:.82rem">No data returned</td></tr>`;
       return `<tr>
         <td><span class="kw-dot" style="background:${PALETTE[i%PALETTE.length]}"></span>${kw}</td>
-        <td style="font-family:var(--serif);font-size:1.1rem;color:${PALETTE[i%PALETTE.length]}">${d.current}</td>
+        <td style="font-family:var(--serif);font-weight:900;font-size:1.1rem;color:${PALETTE[i%PALETTE.length]}">${d.current}</td>
         <td>${d.peak}</td><td>${d.avg}</td>
         <td class="${d.trend}">${ti(d.trend)} ${d.trend}</td>
       </tr>`;
@@ -1470,7 +1682,181 @@ function show(id) { const el = document.getElementById(id); if (el) el.style.dis
 function showL(id) { const el = document.getElementById(id); if (el) el.style.display = 'flex'; }
 function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
 
+// ══════════════════════════════════════════════════════════════════
+// THE REPORT — weekly editorial moodboard + in-page editor
+// ══════════════════════════════════════════════════════════════════
+let reportData = null, reportRegion = 0, reportEdit = false, reportPass = '', rtDirty = false;
+
+async function loadReport() {
+  try {
+    const r = await fetch('/api/report');
+    reportData = await r.json();
+    reportRegion = Math.min(reportRegion, Math.max((reportData.regions || []).length - 1, 0));
+    renderReportTabs();
+    renderReport();
+  } catch (e) { console.error('report:', e); }
+}
+
+function renderReportTabs() {
+  const bar = document.getElementById('rt-tabs');
+  bar.innerHTML = (reportData.regions || []).map((rg, i) =>
+    `<button class="tf-btn ${i === reportRegion ? 'active' : ''}" onclick="switchReportRegion(${i})">${rg.label}</button>`).join('');
+}
+
+function switchReportRegion(i) { reportRegion = i; renderReportTabs(); renderReport(); }
+
+function textOn(hex) {
+  try {
+    const h = (hex || '').replace('#', '');
+    const r = parseInt(h.substr(0, 2), 16), g = parseInt(h.substr(2, 2), 16), b = parseInt(h.substr(4, 2), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#0d0d0d' : '#f6f5f1';
+  } catch (e) { return '#f6f5f1'; }
+}
+
+function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+function reportCardHTML(c, i, ed) {
+  const hasImg = !!(c.image && c.image.trim());
+  const color = c.color || '#2b2925';
+  const styleAttr = hasImg
+    ? `border:1px solid var(--rule); border-top:3px solid ${color}; background:var(--white); color:var(--black)`
+    : `background:${color}; color:${textOn(color)}`;
+  const E = f => ed ? ` contenteditable="true" class="rt-editable" data-rf="${f}"` : '';
+  const img = hasImg ? `
+    <div class="rt-img">
+      <img src="${esc(c.image)}" alt="" loading="lazy" onerror="this.closest('.rt-img').classList.add('rt-img-broken')">
+      ${c.placeholder ? '<div class="rt-ph"><span>PLACEHOLDER</span></div>' : ''}
+    </div>` : '';
+  const strip = ed ? `
+    <div class="rt-strip">
+      <select onchange="rcSet(${i},'size',this.value)" title="Card size">
+        ${['small','wide','tall','large'].map(s => `<option ${c.size === s ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+      <input type="color" value="${esc(color)}" onchange="rcSet(${i},'color',this.value)" title="Card color">
+      <input type="text" value="${esc(c.image || '')}" placeholder="Image URL (optional)" onchange="rcSet(${i},'image',this.value)">
+      <label title="Stamp image as placeholder"><input type="checkbox" ${c.placeholder ? 'checked' : ''} onchange="rcSet(${i},'placeholder',this.checked)">PH</label>
+      <button onclick="rcMove(${i},-1)" title="Move earlier">◀</button>
+      <button onclick="rcMove(${i},1)" title="Move later">▶</button>
+      <button onclick="rcDel(${i})" title="Delete card" class="rt-del">×</button>
+    </div>` : '';
+  return `
+  <article class="rt-card rt-${c.size || 'small'}" data-ci="${i}" style="${styleAttr}">
+    ${img}
+    <div class="rt-inner">
+      <div class="rt-sector"${E('sector')}>${esc(c.sector)}</div>
+      <h3 class="rt-title"${E('title')}>${esc(c.title)}</h3>
+      <p class="rt-body"${E('body')}>${esc(c.body)}</p>
+      <p class="rt-dir">→ <span${E('direction')}>${esc(c.direction)}</span></p>
+      <div class="rt-refs"${E('refs')}>${esc(c.refs)}</div>
+    </div>
+    ${strip}
+  </article>`;
+}
+
+function renderReport() {
+  if (!reportData || !(reportData.regions || []).length) return;
+  const rg = reportData.regions[reportRegion];
+  const ed = reportEdit;
+  document.getElementById('rt-edition').innerHTML = ed
+    ? `<span contenteditable="true" data-rf="edition" class="rt-editable">${esc(reportData.edition_label)}</span>`
+    : esc(reportData.edition_label);
+  document.getElementById('rt-intro').innerHTML = ed
+    ? `<span contenteditable="true" data-rf="intro" class="rt-editable">${esc(rg.intro)}</span>`
+    : esc(rg.intro);
+  document.getElementById('rt-grid').innerHTML =
+    rg.cards.map((c, i) => reportCardHTML(c, i, ed)).join('') +
+    (ed ? `<button class="rt-add" onclick="addReportCard()">+ Add Card</button>` : '');
+  if (ed) wireReportEditing();
+}
+
+function wireReportEditing() {
+  const rg = reportData.regions[reportRegion];
+  document.querySelectorAll('#view-report [contenteditable]').forEach(el => {
+    el.addEventListener('input', () => {
+      rtDirty = true;
+      const f = el.dataset.rf;
+      const card = el.closest('[data-ci]');
+      if (f === 'intro') rg.intro = el.innerText;
+      else if (f === 'edition') reportData.edition_label = el.innerText;
+      else if (card) rg.cards[+card.dataset.ci][f] = el.innerText;
+    });
+  });
+}
+
+function rcSet(i, f, v)  { rtDirty = true; reportData.regions[reportRegion].cards[i][f] = v; renderReport(); }
+function rcMove(i, d) {
+  const cs = reportData.regions[reportRegion].cards, j = i + d;
+  if (j < 0 || j >= cs.length) return;
+  [cs[i], cs[j]] = [cs[j], cs[i]]; rtDirty = true; renderReport();
+}
+function rcDel(i) {
+  if (!confirm('Delete this card?')) return;
+  reportData.regions[reportRegion].cards.splice(i, 1); rtDirty = true; renderReport();
+}
+function addReportCard() {
+  reportData.regions[reportRegion].cards.push({
+    title: 'New Trend', sector: 'Sector', body: 'What it is…',
+    direction: "Where it's heading…", refs: 'Brand · Brand',
+    color: '#2b2925', size: 'small', image: '', placeholder: false
+  });
+  rtDirty = true; renderReport();
+}
+
+// ── Door / auth ────────────────────────────────────────────────────
+function doorClick() {
+  if (reportEdit) { exitReportEditConfirm(); return; }
+  document.getElementById('door-modal').style.display = 'flex';
+  document.getElementById('door-pass').value = '';
+  document.getElementById('door-err').textContent = '';
+  setTimeout(() => document.getElementById('door-pass').focus(), 60);
+}
+async function doorSubmit() {
+  const pw = document.getElementById('door-pass').value;
+  try {
+    const r = await postJSON('/api/report/auth', { password: pw });
+    const d = await r.json();
+    if (d.ok) {
+      reportPass = pw;
+      document.getElementById('door-modal').style.display = 'none';
+      enterReportEdit();
+    } else {
+      document.getElementById('door-err').textContent = 'Wrong password';
+      const box = document.getElementById('door-box');
+      box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+    }
+  } catch (e) { document.getElementById('door-err').textContent = 'Connection error'; }
+}
+function enterReportEdit() {
+  reportEdit = true; rtDirty = false;
+  document.getElementById('rt-editbar').style.display = 'flex';
+  document.getElementById('edit-door').classList.add('door-open-state');
+  renderReport();
+}
+function exitReportEditConfirm() {
+  if (rtDirty && !confirm('Exit the editor? Unsaved changes will be lost.')) return;
+  reportEdit = false; reportPass = ''; rtDirty = false;
+  document.getElementById('rt-editbar').style.display = 'none';
+  document.getElementById('edit-door').classList.remove('door-open-state');
+  loadReport();   // reload from disk, discarding anything unsaved
+}
+async function saveReport() {
+  try {
+    const r = await postJSON('/api/report', { password: reportPass, report: reportData });
+    const d = await r.json();
+    if (d.ok) { rtDirty = false; rtToast('Saved ✓'); }
+    else rtToast('Save failed — ' + (d.error || 'unknown'));
+  } catch (e) { rtToast('Save failed — connection error'); }
+}
+function rtToast(msg) {
+  const t = document.getElementById('rt-toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._h); t._h = setTimeout(() => t.style.display = 'none', 2200);
+}
+
 init();
+loadReport();
+pollUsage();
+setInterval(pollUsage, 20000);   // refresh the Google usage meter every 20s
 </script>
 </body>
 </html>

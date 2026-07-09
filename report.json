@@ -1,0 +1,398 @@
+{
+  "edition_label": "Edition 001 — Week of July 6, 2026",
+  "regions": [
+    {
+      "label": "North America",
+      "intro": "What America is actually wearing right now: running gear that never sees a race, workwear that never sees a job site, and prep staples that feel inherited from Ralph Lauren. Here's what people are gravitating toward this week — and why.",
+      "cards": [
+        {
+          "title": "Everyone Joined a Run Club",
+          "sector": "Running / Lifestyle",
+          "body": "Run clubs have become the new social scene — part workout, part meetup, part fashion show. That's pulled real racing gear into everyday wardrobes: carbon-plate super shoes, technical sunglasses, and split shorts now show up at coffee shops, not just start lines. It's trending because it signals health, community, and being in-the-know all at once.",
+          "direction": "Race-day tech becomes daily wear — running sunglasses are on track to be the accessory of the season.",
+          "refs": "Satisfy · Bandit · District Vision · ASICS Superblast",
+          "color": "#1f2a44",
+          "size": "large",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Runners_celebrate_after_finishing_a_race_in_a_city_street_during_a_summer_event.jpg/1280px-Runners_celebrate_after_finishing_a_race_in_a_city_street_during_a_summer_event.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "The Ralph Lauren Effect",
+          "sector": "Prep / Heritage",
+          "body": "Classic American prep is back on top: rugby shirts, loafers with white sport socks, and grey New Balance 990s. Aimé Leon Dore made the look cool for a new generation, and vintage Polo became the affordable way in. It works because it's easy — familiar pieces that are hard to get wrong.",
+          "direction": "The look gets more lived-in: repaired sweaters, worn tweed, pieces that feel inherited rather than bought.",
+          "refs": "Aimé Leon Dore · Polo Ralph Lauren · New Balance 990",
+          "color": "#6b4f2a",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Brown_penny_loafers_and_black_stockings.jpg/1280px-Brown_penny_loafers_and_black_stockings.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Workwear Left the Job Site",
+          "sector": "Workwear",
+          "body": "Double-knee work pants — the kind actual carpenters wear — are now the default casual pant for creative crowds in every major city. They're trending because they're affordable, durable, and look better as they age. The exact opposite of fast fashion.",
+          "direction": "Dressed up, not down — double-knees styled with dress shoes and overcoats.",
+          "refs": "Carhartt WIP · Dickies · Stan Ray · Red Wing",
+          "color": "#8c3b2e",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/6/60/A_Carhartt_work_jacket_with_grey_fabric.png",
+          "placeholder": true
+        },
+        {
+          "title": "The Concert Uniform Grows Up",
+          "sector": "Darkwear / Music",
+          "body": "The all-black uniform of rap and rock shows — leather jackets, distressed denim, vintage band tees — is maturing. The people who dressed like their favorite artist at 20 want the same mood with better tailoring at 27. Less costume, more cut.",
+          "direction": "Tailored darkwear: the same palette in sharper trousers and cleaner lines.",
+          "refs": "Rick Owens · vintage leather · band tee archives",
+          "color": "#2b2925",
+          "size": "tall",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Black_leather_biker_jacket.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Skinny Sneakers Are Winning",
+          "sector": "Sneakers",
+          "body": "After years of chunky dad shoes, the pendulum has fully swung: thin, low-profile sneakers are the shoe of the moment. Puma's Speedcat kicked it off, and now slim trainers of every kind pair with the wide, baggy pants everyone already owns. The contrast — big pants, sliver of shoe — is the whole point.",
+          "direction": "Even flatter next: taekwondo shoes, driving shoes, and ballet-sneaker hybrids.",
+          "refs": "Puma Speedcat · Adidas Taekwondo · Onitsuka Mexico 66",
+          "color": "#4a5261",
+          "size": "wide",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Puma_Speedcat.jpg/1280px-Puma_Speedcat.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Repair as a Flex",
+          "sector": "Emerging / Craft",
+          "body": "The newest status symbol is visible repair — patched denim, mended knits, chore coats quilted from old fabric. It reads as personal and sustainable in a way a new logo never can.",
+          "direction": "Brands start selling pieces pre-repaired; the handmade look goes mainstream by fall.",
+          "refs": "Bode · Kapital · RRL · thrifted denim",
+          "color": "#77806b",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Boro_textile_from_Japan%2C_with_sashiko.jpg/1280px-Boro_textile_from_Japan%2C_with_sashiko.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Watch List: American Underground",
+          "sector": "Emerging / Local Watch List",
+          "body": "The local names to know before they break big. LA's Reese Cooper and ERL turn Californian nostalgia into runway-ready clothes; New York's Vaquera and Eckhaus Latta keep the art-school edge alive; Who Decides War brings embellished, churchy detail to streetwear. Small studios, real points of view — the opposite of algorithm fashion.",
+          "direction": "Expect at least one of these on a major runway, magazine cover, or A-list celebrity within the year.",
+          "refs": "Reese Cooper · ERL · Vaquera · Who Decides War · Online Ceramics",
+          "color": "#3d3550",
+          "size": "large",
+          "image": "",
+          "placeholder": false
+        }
+      ]
+    },
+    {
+      "label": "Europe",
+      "intro": "Europe is splitting three ways: London is rewriting streetwear on its own terms, Paris is whispering luxury through texture, and Copenhagen refuses to wear beige. What people are gravitating toward this week — and why.",
+      "cards": [
+        {
+          "title": "Football Style, After the Hype",
+          "sector": "Terrace / Football",
+          "body": "The Adidas Samba got so popular it stopped feeling special — but the football-terrace look behind it didn't die, it leveled up. People moved to rarer models like the Spezial and swapped football shirts for track jackets worn over tailored trousers. It's trending because it lets you look sharp while signaling you were into it before everyone else.",
+          "direction": "The next grail: vintage Stone Island and C.P. Company — the brands the original football casuals actually wore.",
+          "refs": "Adidas Spezial · Stone Island · C.P. Company",
+          "color": "#1e4d38",
+          "size": "large",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Adidas_Handball_Spezial.jpg/1280px-Adidas_Handball_Spezial.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "London Runs Its Own Race",
+          "sector": "UK Street",
+          "body": "UK streetwear no longer follows America. Corteiz built a world-class brand on London rules — surprise drops, local pride — and its cargo-and-puffer uniform now gets copied globally. Scarcity plus genuine community is the formula.",
+          "direction": "UK labels shift from hype to quality: better fabric, better make, same attitude.",
+          "refs": "Corteiz · Unknown London · Nike Tech Fleece",
+          "color": "#1a56db",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Fashion_Street_February_2014_01.jpg/1280px-Fashion_Street_February_2014_01.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Copenhagen Brings the Color",
+          "sector": "Copenhagen",
+          "body": "While everyone else wears black and beige, Copenhagen leans into joyful color — clashing knits, layered prints, clogs year-round. It photographs beautifully, which is exactly why it spreads: every fashion week, the street style goes viral before the runways do.",
+          "direction": "Bright, layered knitwear carries the look into autumn.",
+          "refs": "Ganni · Stine Goya · Hereu",
+          "color": "#b8850a",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Copenhagen_2018-02-03_%2840102786511%29.jpg/1280px-Copenhagen_2018-02-03_%2840102786511%29.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Quiet Luxury You Can Feel",
+          "sector": "Quiet Luxury",
+          "body": "Expensive dressing in Paris and Milan has gone tactile. Instead of logos, the signal is texture — brushed wool, heavy suede, chocolate brown replacing black. Why it works: fabric quality is the one thing you can't fake at a glance. You have to touch it.",
+          "direction": "Suede everything this winter; loafers replace sneakers at dinner.",
+          "refs": "The Row · Lemaire · Zegna",
+          "color": "#2b2925",
+          "size": "tall",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Handmade_Lake_Blue_Loafers_Shoe.jpg/1280px-Handmade_Lake_Blue_Loafers_Shoe.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "The €40 Luxury Sneaker",
+          "sector": "Sneakers",
+          "body": "The German Army Trainer — a plain 1970s military gym shoe — is Europe's favorite 'luxury' sneaker again. Margiela sells a version for €500; surplus stores sell originals for a fraction. Worn-in beats brand-new, and the story beats the price tag.",
+          "direction": "Original military pairs climb in value as deadstock dries up.",
+          "refs": "Margiela Replica · Novesta · army surplus",
+          "color": "#4a5261",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/US_Soldiers_train_with_German_Army_Reserve_soldiers_%284588857%29.jpg/1280px-US_Soldiers_train_with_German_Army_Reserve_soldiers_%284588857%29.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Motorsport Beyond the Merch",
+          "sector": "Emerging / Motorsport",
+          "body": "F1's popularity boom started with team caps and race tees — now it's maturing into actual fashion. Vintage racing leathers, moto boots, and jackets with racing lines are showing up in womenswear. The sport gave people a new aesthetic vocabulary, and designers are running with it.",
+          "direction": "Moto details melt into everyday outerwear: curved sleeves, padded shoulders, colorblocked leather.",
+          "refs": "Puma Speedcat · vintage Dainese · F1 archive",
+          "color": "#8c3b2e",
+          "size": "wide",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Gabor-Talmacsi-Aprilla-2.jpg/1280px-Gabor-Talmacsi-Aprilla-2.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Watch List: Europe's New Guard",
+          "sector": "Emerging / Local Watch List",
+          "body": "Beyond the big houses, a young European wave is picking up speed. London's SS Daley and Aaron Esh reimagine British tailoring for a new generation; Sweden's Séfr perfects easy, grown-up minimalism; Belgium's Namacheko and Austria's Rier bring quiet experimentation. This is where stylists shop before the mainstream catches on.",
+          "direction": "These designers are the ones industry insiders name-drop first — watch for LVMH Prize shortlists.",
+          "refs": "SS Daley · Aaron Esh · Séfr · Namacheko · Rier",
+          "color": "#3d3550",
+          "size": "large",
+          "image": "",
+          "placeholder": false
+        }
+      ]
+    },
+    {
+      "label": "Japan",
+      "intro": "Tokyo does two things at once: perfecting quiet, technical everyday clothing while obsessively archiving its own street-fashion history. What's moving this week — and why.",
+      "cards": [
+        {
+          "title": "Outdoor Gear, Dressed Up",
+          "sector": "Technical / Outdoor",
+          "body": "Tokyo took hiking gear and refined it into city clothing — rain-proof jackets cut like blazers, trail fabrics in soft tonal colors. Where Western gorpcore is loud and logo-heavy, the Japanese version is quiet and precise. It's trending because it solves real life — commutes, rain, long days — while looking considered.",
+          "direction": "'Office-technical' spreads worldwide; Goldwin's understated approach is the blueprint.",
+          "refs": "Goldwin · And Wander · Nanamica · Snow Peak",
+          "color": "#1e4d38",
+          "size": "large",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Early_Gore-Tex_hooded_rain_jacket.jpg/1280px-Early_Gore-Tex_hooded_rain_jacket.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Denim Worth Repairing",
+          "sector": "Heritage / Denim",
+          "body": "Japan's deep denim culture — heavyweight selvedge, loopwheel sweatshirts, sturdy boots — is compounding again, and repair is the point. A patched, faded pair tells your story. A new pair tells no story at all.",
+          "direction": "Visible mending (boro) moves from craft niche to mainstream retail.",
+          "refs": "Kapital · orSlow · Warehouse & Co.",
+          "color": "#6b4f2a",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Lee_101_Hemp_Jelt_tab_%282025-12-19%29_8.jpg/1280px-Lee_101_Hemp_Jelt_tab_%282025-12-19%29_8.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "The Archive Gold Rush",
+          "sector": "Archive / Street",
+          "body": "Pieces from Tokyo's late-90s street era — early Undercover, Number (N)ine, original BAPE — are being collected like art, with prices to match. Young shoppers weren't alive for the era, which is exactly the appeal: it's history you can wear.",
+          "direction": "Archive fever spreads from famous designers to the smaller street labels of the same era.",
+          "refs": "Undercover · Number (N)ine · BAPE archive",
+          "color": "#2b2925",
+          "size": "tall",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Harajuku_street_fashion_2023_1.jpg/1280px-Harajuku_street_fashion_2023_1.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "After the Onitsuka Boom",
+          "sector": "Sneakers",
+          "body": "Tourists made the Onitsuka Tiger Mexico 66 the unofficial shoe of a Japan trip — so locals quietly moved on. The domestic pick now is ASICS' own runners: same heritage, less hype.",
+          "direction": "ASICS becomes Japan's national sneaker, led by slim runners like the GT-2160.",
+          "refs": "ASICS · Onitsuka Tiger · Moonstar",
+          "color": "#b8850a",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Tokidoki_x_Onitsuka_Tiger_shoes_%40_Eilatan_%285173542014%29.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "One Jacket, Two Ideas",
+          "sector": "Design",
+          "body": "Sacai's signature trick — splicing two garments into one, like a trench that's half bomber — has filtered into everyday Japanese menswear. It's an easy way to look interesting without trying hard.",
+          "direction": "Hybrid pieces go fully mainstream across mid-priced brands.",
+          "refs": "Sacai · Kolor · Toga",
+          "color": "#4a5261",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/2/2a/2017_Chitose_Abe_for_Sacai_two-piece_dress%2C_Fall-Winter_collection._01.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "The Quiet Craft Tier",
+          "sector": "Emerging / Craft",
+          "body": "A wave of low-key Japanese brands — no logos, exceptional fabric, perfect cuts — is winning over people tired of both fast fashion and hype. You buy them for how they feel, not how they post.",
+          "direction": "This tier becomes Japan's next big fashion export.",
+          "refs": "Auralee · Comoli · Graphpaper",
+          "color": "#77806b",
+          "size": "wide",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Iyo-Kasuri_1_%28Matsuyama_City%29.JPG/1280px-Iyo-Kasuri_1_%28Matsuyama_City%29.JPG",
+          "placeholder": true
+        },
+        {
+          "title": "Watch List: Tokyo's Next Names",
+          "sector": "Emerging / Local Watch List",
+          "body": "The new Tokyo guard blends craft with subtle subversion. TTT_MSW does relaxed, wearable tailoring; Kota Gushiken makes painterly hand-knits; Setchu (an LVMH Prize winner) cuts East-meets-West silhouettes; Digawel runs quiet design experiments. Tiny studios, obsessive detail — the next wave of 'Japanese brand' status.",
+          "direction": "Craft-forward and export-ready; these are the labels stocking up at Dover Street Market next.",
+          "refs": "TTT_MSW · Kota Gushiken · Setchu · Digawel · Stein",
+          "color": "#3d3550",
+          "size": "large",
+          "image": "",
+          "placeholder": false
+        }
+      ]
+    },
+    {
+      "label": "Korea",
+      "intro": "Seoul moves faster than any fashion city on earth — and right now it's moving toward precision: slimmer outdoor gear, sharper tailoring, and one very codified uniform. This week's currents, and why.",
+      "cards": [
+        {
+          "title": "The Musinsa Uniform",
+          "sector": "Seoul Uniform",
+          "body": "Walk through Seoul and you'll see the same excellent outfit everywhere: oversized blazer, wide trousers, clean low-profile sneakers. It comes from Musinsa — the shopping platform so dominant its house style became the national default. It's trending because it's foolproof: polished, affordable, impossible to get wrong.",
+          "direction": "Individuality returns through small things — thin metal glasses, mini bags, jewelry.",
+          "refs": "Musinsa Standard · Kijun · Ader Error",
+          "color": "#2b2925",
+          "size": "large",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Lucas_Wong_during_Seoul_Fashion_Week_2025_03.jpg/1280px-Lucas_Wong_during_Seoul_Fashion_Week_2025_03.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Outdoor Gear Slims Down",
+          "sector": "Outdoor",
+          "body": "The Salomon-and-Arc'teryx look hit saturation in Seoul, so it's evolving: slimmer shells, cropped fits, sleeker trail shoes. The mountain look is being tailored to city proportions.",
+          "direction": "'Alpine, but sleek' — low hybrid shoes replace bulky trail runners.",
+          "refs": "Salomon · Arc'teryx · Kolon Sport",
+          "color": "#1e4d38",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Salomon_trail_running_shoes_women_Speedcross.jpg/1280px-Salomon_trail_running_shoes_women_Speedcross.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Ballet Meets the Gym",
+          "sector": "Feminine Wave",
+          "body": "Seoul merged two opposite ideas: delicate ballet flats and sporty track wear. Mesh flats and ribbon laces styled against windbreakers and track pants — soft against sporty. That tension is what makes it photograph so well.",
+          "direction": "Ballet-sneaker hybrids are the next shoe category to watch.",
+          "refs": "mesh flats · ribbon laces · track styling",
+          "color": "#9c6b70",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Table_full_of_ballerina_shoes.jpg/1280px-Table_full_of_ballerina_shoes.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Sharp, Dark Tailoring",
+          "sector": "Tailoring",
+          "body": "Seoul's signature suiting — strong shoulders, long clean lines, all monochrome — keeps spreading from designer runways to the high street. It reads as serious and modern without a single flashy detail.",
+          "direction": "Same silhouette, softer fabric: fluid suits in charcoal and ash.",
+          "refs": "Juun.J · System · Wooyoungmi",
+          "color": "#4a5261",
+          "size": "tall",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Massinissa_of_the_Rif_at_the_Casablanca_Fall_2023_Menswear_runway_show_during_Paris_Fashion_Week.jpg/1280px-Massinissa_of_the_Rif_at_the_Casablanca_Fall_2023_Menswear_runway_show_during_Paris_Fashion_Week.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Denim, But Bigger",
+          "sector": "Emerging / Denim",
+          "body": "Hongdae's youth scene is going all-in on volume: wide, stacked jeans, double denim, carpenter pockets, lighter washes. It's a reaction to years of neat minimalism — the bigger the silhouette, the newer it feels.",
+          "direction": "Workwear details and paler washes take over as the season turns.",
+          "refs": "vintage Levi's · Musinsa denim labels",
+          "color": "#1f2a44",
+          "size": "wide",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/%E8%85%B0%E3%83%91%E3%83%B3_2010_%284632049450%29.jpg/1280px-%E8%85%B0%E3%83%91%E3%83%B3_2010_%284632049450%29.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Watch List: Seoul Underground",
+          "sector": "Emerging / Local Watch List",
+          "body": "Beyond the clean Musinsa uniform, Seoul's experimental edge is growing loud. Kanghyuk builds outerwear from airbag fabric; Post Archive Faction (PAF) deconstructs techwear into something sculptural; Kusikohc obsesses over utilitarian hardware; Hyein Seo channels youth-culture darkness. Concept-driven and already globally noticed.",
+          "direction": "Concept-heavy Korean labels keep landing in Dover Street Market and on world-tour stages.",
+          "refs": "Kanghyuk · Post Archive Faction · Kusikohc · Hyein Seo",
+          "color": "#3d3550",
+          "size": "large",
+          "image": "",
+          "placeholder": false
+        }
+      ]
+    },
+    {
+      "label": "Greater China",
+      "intro": "One honest note: our search data covers Hong Kong and Taiwan only, but the bigger story includes the mainland — where homegrown brands and outdoor culture are booming. This week's currents, and why.",
+      "cards": [
+        {
+          "title": "China Shops Chinese",
+          "sector": "Guochao",
+          "body": "'Guochao' — the pride-in-Chinese-brands movement — has matured. The early wave shouted with dragon graphics; the new wave whispers through premium fabrics and subtle cultural references, led by lines like Li-Ning 1990. Buying domestic now signals taste, not just patriotism.",
+          "direction": "Quiet guochao: heritage in the weave, not printed on the front.",
+          "refs": "Li-Ning 1990 · Anta premium · Beneunder",
+          "color": "#8c3b2e",
+          "size": "large",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Li_Ning_store_in_Changsha_3_July_2024A.jpg/1280px-Li_Ning_store_in_Changsha_3_July_2024A.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "The Outdoor Boom",
+          "sector": "Outdoor",
+          "body": "Camping, city hiking, and technical jackets have exploded across mainland China — with Arc'teryx (owned by China's Anta) at the top as the ultimate status shell. Outdoor gear became the acceptable way to show wealth quietly.",
+          "direction": "Domestic technical brands like Kailas close the credibility gap fast.",
+          "refs": "Arc'teryx · Kailas · Toread",
+          "color": "#1e4d38",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Arc%27teryx_Atom_LT_jacket_%2850685069443%29.jpg/1280px-Arc%27teryx_Atom_LT_jacket_%2850685069443%29.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Hong Kong Digs the Archives",
+          "sector": "Hong Kong",
+          "body": "Hong Kong's collectors are going deep on vintage Japanese designers — Comme des Garçons, Yohji Yamamoto — plus military surplus and raw denim. The city's old magazine-and-sneaker culture trained a generation to hunt rare pieces.",
+          "direction": "Archive suiting is the next dig after archive streetwear.",
+          "refs": "CDG · Yohji Yamamoto · HK vintage dealers",
+          "color": "#2b2925",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Busy_Mong_Kok._Hong_Kong._%2839703519610%29.jpg/1280px-Busy_Mong_Kok._Hong_Kong._%2839703519610%29.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Taipei Keeps It Soft",
+          "sector": "Taipei",
+          "body": "Taiwan's street style runs gentler than its neighbors: relaxed fits, muted colors, café-culture ease, and grey New Balances as the default shoe. Comfort-first, but considered.",
+          "direction": "Japanese-style craft labels keep gaining with Taipei's slow-fashion crowd.",
+          "refs": "New Balance · local craft labels",
+          "color": "#4a5261",
+          "size": "small",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Ximending_rainbow_crossing_201910.jpg/1280px-Ximending_rainbow_crossing_201910.jpg",
+          "placeholder": true
+        },
+        {
+          "title": "Chinese Performance Tech",
+          "sector": "Emerging / Performance",
+          "body": "Chinese basketball shoes are genuinely good now — real innovation at half the price of the big names, worn by NBA players. On mainland courts they're taking serious share, and the credibility is starting to travel.",
+          "direction": "Watch Chinese performance tech begin exporting westward.",
+          "refs": "Anta KAI 1 · Li-Ning Wade · 361° AG",
+          "color": "#1a56db",
+          "size": "wide",
+          "image": "",
+          "placeholder": false
+        },
+        {
+          "title": "Watch List: China's New Designers",
+          "sector": "Emerging / Local Watch List",
+          "body": "A generation of Chinese designers is rewriting the country's fashion identity on its own terms. Pronounce does modern menswear; Samuel Guì Yang refines quiet womenswear; Shushu/Tong spins hyper-feminine romance; Angel Chen goes full color-drenched maximalism. Increasingly on the international show calendar, not just Shanghai's.",
+          "direction": "Watch these names jump from Shanghai Fashion Week onto the Paris and London schedules.",
+          "refs": "Pronounce · Samuel Guì Yang · Shushu/Tong · Angel Chen · Yueqi Qi",
+          "color": "#3d3550",
+          "size": "large",
+          "image": "",
+          "placeholder": false
+        }
+      ]
+    }
+  ]
+}

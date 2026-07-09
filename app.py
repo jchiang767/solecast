@@ -5,6 +5,12 @@ import requests
 from urllib.parse import quote as _urlquote
 from concurrent.futures import ThreadPoolExecutor
 
+# When deployed to a cloud host (shared datacenter IP), Google Trends gets
+# rate-limited hard — so default the UI to Wikipedia there. Set locally too
+# via SOLECAST_DEFAULT_SOURCE if you want.
+DEFAULT_SOURCE = os.environ.get('SOLECAST_DEFAULT_SOURCE', 'google')
+IS_HOSTED = bool(os.environ.get('PORT'))   # cloud hosts inject $PORT
+
 # ── Aggregate region definitions ──────────────────────────────────────────
 AGGREGATE_REGIONS = {
     "AGG:EMEA":  ["GB", "DE", "FR", "IT"],
@@ -149,14 +155,44 @@ _last_google_call = 0.0
 _throttle_lock = threading.Lock()
 GOOGLE_MIN_INTERVAL = 2.5
 
+# ── Google usage tracking (visibility so users stay under the limit) ──────
+from collections import deque
+_google_hits = deque(maxlen=2000)   # timestamps of live Google requests
+_last_429 = 0.0
+# soft self-imposed ceiling; Google's real limit is unpublished, this keeps
+# us comfortably beneath it and drives the UI meter.
+GOOGLE_HOURLY_SOFT_CAP = 45
+
 def _google_throttle():
+    """Reserve a spaced slot for a live Google request AND record it for the meter."""
     global _last_google_call
     with _throttle_lock:
         slot = max(_last_google_call + GOOGLE_MIN_INTERVAL, time.time())
         _last_google_call = slot
+        _google_hits.append(slot)
     wait = slot - time.time()
     if wait > 0:
         time.sleep(wait)
+
+def _note_429():
+    global _last_429
+    _last_429 = time.time()
+
+def _google_usage():
+    now = time.time()
+    m10 = sum(1 for t in _google_hits if now - t < 600)
+    hr  = sum(1 for t in _google_hits if now - t < 3600)
+    limited = (now - _last_429) < 120
+    if limited:                       status = "limited"
+    elif hr >= GOOGLE_HOURLY_SOFT_CAP: status = "limited"
+    elif hr >= GOOGLE_HOURLY_SOFT_CAP * 0.6: status = "caution"
+    else:                             status = "ok"
+    return {
+        "last_10min": m10, "last_hour": hr, "cap": GOOGLE_HOURLY_SOFT_CAP,
+        "status": status, "recent_429": limited,
+        "cache_entries": len(_cache),
+        "cooldown_s": max(0, int(120 - (now - _last_429))) if limited else 0,
+    }
 
 def _get_pytrends():
     return TrendReq(hl='en-US', tz=360, timeout=(10, 20))
@@ -209,6 +245,7 @@ def _trends_request_with_retry(keywords, timeframe, geo, max_retries=2):
         except Exception as e:
             last_err = e
             if '429' in str(e) or 'Too Many' in str(e):
+                _note_429()
                 time.sleep(2 ** attempt)  # 1s, 2s
             else:
                 break
@@ -491,7 +528,9 @@ _reddit_token_cache = {"token": None, "exp": 0}
 
 def _reddit_token():
     creds = load_config().get("reddit_credentials", {})
-    cid, secret = creds.get("client_id", ""), creds.get("client_secret", "")
+    # env vars take precedence when hosted (so secrets aren't committed to git)
+    cid = os.environ.get("REDDIT_CLIENT_ID") or creds.get("client_id", "")
+    secret = os.environ.get("REDDIT_CLIENT_SECRET") or creds.get("client_secret", "")
     if not cid or not secret:
         return None
     if _reddit_token_cache["token"] and _reddit_token_cache["exp"] > time.time():
@@ -604,7 +643,8 @@ DEFAULT_CONFIG = {
         "12M": "today 12-m",
         "5Y": "today 5-y"
     },
-    "reddit_credentials": {"client_id": "", "client_secret": ""}
+    "reddit_credentials": {"client_id": "", "client_secret": ""},
+    "report_password": "solecast"
 }
 
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'config.json')
@@ -631,6 +671,16 @@ def index():
 @app.route('/api/regions')
 def get_regions():
     return jsonify(REGIONS)
+
+@app.route('/api/meta')
+def get_meta():
+    """Environment info the frontend needs at load (e.g. default data source)."""
+    return jsonify({"default_source": DEFAULT_SOURCE, "hosted": IS_HOSTED})
+
+@app.route('/api/usage')
+def get_usage():
+    """Live Google Trends usage so the UI can keep users under the limit."""
+    return jsonify(_google_usage())
 
 @app.route('/api/suggest')
 def suggest():
@@ -684,6 +734,37 @@ def update_config():
 def reset_config():
     save_config(DEFAULT_CONFIG)
     return jsonify(DEFAULT_CONFIG)
+
+# ── The Report (weekly editorial, in-page editable) ────────────────────────
+REPORT_FILE = os.path.join(os.path.dirname(__file__), 'report.json')
+
+def _report_password():
+    # env var wins (for hosted deployments), then config.json, then default
+    return os.environ.get('REPORT_PASSWORD') or load_config().get('report_password') or 'solecast'
+
+@app.route('/api/report', methods=['GET'])
+def get_report():
+    if os.path.exists(REPORT_FILE):
+        with open(REPORT_FILE) as f:
+            return jsonify(json.load(f))
+    return jsonify({"edition_label": "Edition 001", "regions": []})
+
+@app.route('/api/report/auth', methods=['POST'])
+def report_auth():
+    ok = (request.json or {}).get('password', '') == _report_password()
+    return jsonify({"ok": ok})
+
+@app.route('/api/report', methods=['POST'])
+def save_report_route():
+    body = request.json or {}
+    if body.get('password', '') != _report_password():
+        return jsonify({"ok": False, "error": "Wrong password"}), 403
+    report = body.get('report')
+    if not isinstance(report, dict) or 'regions' not in report:
+        return jsonify({"ok": False, "error": "Bad payload"}), 400
+    with open(REPORT_FILE, 'w') as f:
+        json.dump(report, f, indent=2, ensure_ascii=False)
+    return jsonify({"ok": True})
 
 @app.route('/api/trends', methods=['POST'])
 def get_trends():
@@ -1456,6 +1537,7 @@ def _prefetch_worker():
                 _cache_set(key, df)
         except Exception as e:
             if '429' in str(e) or 'Too Many' in str(e):
+                _note_429()
                 time.sleep(180)   # limited: back off, resume warming later
 
 @app.before_request

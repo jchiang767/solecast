@@ -52,5 +52,6 @@
     "1W": "now 7-d",
     "3M": "today 3-m",
     "5Y": "today 5-y"
-  }
+  },
+  "report_password": "    "
 }
