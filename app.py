@@ -8,7 +8,10 @@ from concurrent.futures import ThreadPoolExecutor
 # When deployed to a cloud host (shared datacenter IP), Google Trends gets
 # rate-limited hard — so default the UI to Wikipedia there. Set locally too
 # via SOLECAST_DEFAULT_SOURCE if you want.
-DEFAULT_SOURCE = os.environ.get('SOLECAST_DEFAULT_SOURCE', 'google')
+# Wikipedia by default: real data with no rate limit, so first-time visitors
+# (e.g. a recruiter clicking through) never hit Google's 429 wall. Google
+# remains one click away in the source picker.
+DEFAULT_SOURCE = os.environ.get('SOLECAST_DEFAULT_SOURCE', 'wikipedia')
 IS_HOSTED = bool(os.environ.get('PORT'))   # cloud hosts inject $PORT
 
 # ── Aggregate region definitions ──────────────────────────────────────────
@@ -681,6 +684,37 @@ def get_meta():
 def get_usage():
     """Live Google Trends usage so the UI can keep users under the limit."""
     return jsonify(_google_usage())
+
+# ── Image proxy ───────────────────────────────────────────────────────────
+# Serve report imagery through our own origin so it never depends on the
+# browser successfully hotlinking a third party (which fails intermittently).
+# Restricted to an allowlist so this can't be used as an open proxy.
+from urllib.parse import urlparse as _urlparse
+from flask import Response as _Response
+_img_cache = {}
+ALLOWED_IMG_HOSTS = {"upload.wikimedia.org", "commons.wikimedia.org"}
+
+@app.route('/api/img')
+def img_proxy():
+    u = request.args.get('u', '')
+    if not u:
+        return "missing url", 400
+    if _urlparse(u).netloc.lower() not in ALLOWED_IMG_HOSTS:
+        return "host not allowed", 403
+    hit = _img_cache.get(u)
+    if hit is None:
+        try:
+            r = requests.get(u, headers=WIKI_UA, timeout=15)
+            if r.status_code != 200:
+                return "upstream error", 502
+            hit = (r.headers.get('Content-Type', 'image/jpeg'), r.content)
+            if len(_img_cache) < 300:   # cap memory use
+                _img_cache[u] = hit
+        except Exception:
+            return "fetch failed", 502
+    resp = _Response(hit[1], mimetype=hit[0])
+    resp.headers['Cache-Control'] = 'public, max-age=604800'   # 7 days
+    return resp
 
 @app.route('/api/suggest')
 def suggest():

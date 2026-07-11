@@ -13,7 +13,7 @@
           "refs": "Satisfy · Bandit · District Vision · ASICS Superblast",
           "color": "#1f2a44",
           "size": "large",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Runners_celebrate_after_finishing_a_race_in_a_city_street_during_a_summer_event.jpg/1280px-Runners_celebrate_after_finishing_a_race_in_a_city_street_during_a_summer_event.jpg",
+          "image": "/static/report-img/north-america-0.jpg",
           "placeholder": true
         },
         {
@@ -24,7 +24,7 @@
           "refs": "Aimé Leon Dore · Polo Ralph Lauren · New Balance 990",
           "color": "#6b4f2a",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Brown_penny_loafers_and_black_stockings.jpg/1280px-Brown_penny_loafers_and_black_stockings.jpg",
+          "image": "/static/report-img/north-america-1.jpg",
           "placeholder": true
         },
         {
@@ -35,7 +35,7 @@
           "refs": "Carhartt WIP · Dickies · Stan Ray · Red Wing",
           "color": "#8c3b2e",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/6/60/A_Carhartt_work_jacket_with_grey_fabric.png",
+          "image": "/static/report-img/north-america-2.jpg",
           "placeholder": true
         },
         {
@@ -46,7 +46,7 @@
           "refs": "Rick Owens · vintage leather · band tee archives",
           "color": "#2b2925",
           "size": "tall",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Black_leather_biker_jacket.jpg",
+          "image": "/static/report-img/north-america-3.jpg",
           "placeholder": true
         },
         {
@@ -57,7 +57,7 @@
           "refs": "Puma Speedcat · Adidas Taekwondo · Onitsuka Mexico 66",
           "color": "#4a5261",
           "size": "wide",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Puma_Speedcat.jpg/1280px-Puma_Speedcat.jpg",
+          "image": "/static/report-img/north-america-4.jpg",
           "placeholder": true
         },
         {
@@ -68,7 +68,7 @@
           "refs": "Bode · Kapital · RRL · thrifted denim",
           "color": "#77806b",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Boro_textile_from_Japan%2C_with_sashiko.jpg/1280px-Boro_textile_from_Japan%2C_with_sashiko.jpg",
+          "image": "/static/report-img/north-america-5.jpg",
           "placeholder": true
         },
         {
@@ -96,7 +96,7 @@
           "refs": "Adidas Spezial · Stone Island · C.P. Company",
           "color": "#1e4d38",
           "size": "large",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Adidas_Handball_Spezial.jpg/1280px-Adidas_Handball_Spezial.jpg",
+          "image": "/static/report-img/europe-0.jpg",
           "placeholder": true
         },
         {
@@ -107,7 +107,7 @@
           "refs": "Corteiz · Unknown London · Nike Tech Fleece",
           "color": "#1a56db",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Fashion_Street_February_2014_01.jpg/1280px-Fashion_Street_February_2014_01.jpg",
+          "image": "/static/report-img/europe-1.jpg",
           "placeholder": true
         },
         {
@@ -118,7 +118,7 @@
           "refs": "Ganni · Stine Goya · Hereu",
           "color": "#b8850a",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Copenhagen_2018-02-03_%2840102786511%29.jpg/1280px-Copenhagen_2018-02-03_%2840102786511%29.jpg",
+          "image": "/static/report-img/europe-2.jpg",
           "placeholder": true
         },
         {
@@ -129,7 +129,7 @@
           "refs": "The Row · Lemaire · Zegna",
           "color": "#2b2925",
           "size": "tall",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Handmade_Lake_Blue_Loafers_Shoe.jpg/1280px-Handmade_Lake_Blue_Loafers_Shoe.jpg",
+          "image": "/static/report-img/europe-3.jpg",
           "placeholder": true
         },
         {
@@ -140,7 +140,7 @@
           "refs": "Margiela Replica · Novesta · army surplus",
           "color": "#4a5261",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/US_Soldiers_train_with_German_Army_Reserve_soldiers_%284588857%29.jpg/1280px-US_Soldiers_train_with_German_Army_Reserve_soldiers_%284588857%29.jpg",
+          "image": "/static/report-img/europe-4.jpg",
           "placeholder": true
         },
         {
@@ -151,7 +151,7 @@
           "refs": "Puma Speedcat · vintage Dainese · F1 archive",
           "color": "#8c3b2e",
           "size": "wide",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Gabor-Talmacsi-Aprilla-2.jpg/1280px-Gabor-Talmacsi-Aprilla-2.jpg",
+          "image": "/static/report-img/europe-5.jpg",
           "placeholder": true
         },
         {
@@ -179,7 +179,7 @@
           "refs": "Goldwin · And Wander · Nanamica · Snow Peak",
           "color": "#1e4d38",
           "size": "large",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Early_Gore-Tex_hooded_rain_jacket.jpg/1280px-Early_Gore-Tex_hooded_rain_jacket.jpg",
+          "image": "/static/report-img/japan-0.jpg",
           "placeholder": true
         },
         {
@@ -190,7 +190,7 @@
           "refs": "Kapital · orSlow · Warehouse & Co.",
           "color": "#6b4f2a",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Lee_101_Hemp_Jelt_tab_%282025-12-19%29_8.jpg/1280px-Lee_101_Hemp_Jelt_tab_%282025-12-19%29_8.jpg",
+          "image": "/static/report-img/japan-1.jpg",
           "placeholder": true
         },
         {
@@ -201,7 +201,7 @@
           "refs": "Undercover · Number (N)ine · BAPE archive",
           "color": "#2b2925",
           "size": "tall",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Harajuku_street_fashion_2023_1.jpg/1280px-Harajuku_street_fashion_2023_1.jpg",
+          "image": "/static/report-img/japan-2.jpg",
           "placeholder": true
         },
         {
@@ -212,7 +212,7 @@
           "refs": "ASICS · Onitsuka Tiger · Moonstar",
           "color": "#b8850a",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Tokidoki_x_Onitsuka_Tiger_shoes_%40_Eilatan_%285173542014%29.jpg",
+          "image": "/static/report-img/japan-3.jpg",
           "placeholder": true
         },
         {
@@ -223,7 +223,7 @@
           "refs": "Sacai · Kolor · Toga",
           "color": "#4a5261",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/2/2a/2017_Chitose_Abe_for_Sacai_two-piece_dress%2C_Fall-Winter_collection._01.jpg",
+          "image": "/static/report-img/japan-4.jpg",
           "placeholder": true
         },
         {
@@ -234,7 +234,7 @@
           "refs": "Auralee · Comoli · Graphpaper",
           "color": "#77806b",
           "size": "wide",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Iyo-Kasuri_1_%28Matsuyama_City%29.JPG/1280px-Iyo-Kasuri_1_%28Matsuyama_City%29.JPG",
+          "image": "/static/report-img/japan-5.jpg",
           "placeholder": true
         },
         {
@@ -262,7 +262,7 @@
           "refs": "Musinsa Standard · Kijun · Ader Error",
           "color": "#2b2925",
           "size": "large",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Lucas_Wong_during_Seoul_Fashion_Week_2025_03.jpg/1280px-Lucas_Wong_during_Seoul_Fashion_Week_2025_03.jpg",
+          "image": "/static/report-img/korea-0.jpg",
           "placeholder": true
         },
         {
@@ -273,7 +273,7 @@
           "refs": "Salomon · Arc'teryx · Kolon Sport",
           "color": "#1e4d38",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Salomon_trail_running_shoes_women_Speedcross.jpg/1280px-Salomon_trail_running_shoes_women_Speedcross.jpg",
+          "image": "/static/report-img/korea-1.jpg",
           "placeholder": true
         },
         {
@@ -284,7 +284,7 @@
           "refs": "mesh flats · ribbon laces · track styling",
           "color": "#9c6b70",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Table_full_of_ballerina_shoes.jpg/1280px-Table_full_of_ballerina_shoes.jpg",
+          "image": "/static/report-img/korea-2.jpg",
           "placeholder": true
         },
         {
@@ -295,7 +295,7 @@
           "refs": "Juun.J · System · Wooyoungmi",
           "color": "#4a5261",
           "size": "tall",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Massinissa_of_the_Rif_at_the_Casablanca_Fall_2023_Menswear_runway_show_during_Paris_Fashion_Week.jpg/1280px-Massinissa_of_the_Rif_at_the_Casablanca_Fall_2023_Menswear_runway_show_during_Paris_Fashion_Week.jpg",
+          "image": "/static/report-img/korea-3.jpg",
           "placeholder": true
         },
         {
@@ -306,7 +306,7 @@
           "refs": "vintage Levi's · Musinsa denim labels",
           "color": "#1f2a44",
           "size": "wide",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/%E8%85%B0%E3%83%91%E3%83%B3_2010_%284632049450%29.jpg/1280px-%E8%85%B0%E3%83%91%E3%83%B3_2010_%284632049450%29.jpg",
+          "image": "/static/report-img/korea-4.jpg",
           "placeholder": true
         },
         {
@@ -334,7 +334,7 @@
           "refs": "Li-Ning 1990 · Anta premium · Beneunder",
           "color": "#8c3b2e",
           "size": "large",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Li_Ning_store_in_Changsha_3_July_2024A.jpg/1280px-Li_Ning_store_in_Changsha_3_July_2024A.jpg",
+          "image": "/static/report-img/greater-china-0.jpg",
           "placeholder": true
         },
         {
@@ -345,7 +345,7 @@
           "refs": "Arc'teryx · Kailas · Toread",
           "color": "#1e4d38",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Arc%27teryx_Atom_LT_jacket_%2850685069443%29.jpg/1280px-Arc%27teryx_Atom_LT_jacket_%2850685069443%29.jpg",
+          "image": "/static/report-img/greater-china-1.jpg",
           "placeholder": true
         },
         {
@@ -356,7 +356,7 @@
           "refs": "CDG · Yohji Yamamoto · HK vintage dealers",
           "color": "#2b2925",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Busy_Mong_Kok._Hong_Kong._%2839703519610%29.jpg/1280px-Busy_Mong_Kok._Hong_Kong._%2839703519610%29.jpg",
+          "image": "/static/report-img/greater-china-2.jpg",
           "placeholder": true
         },
         {
@@ -367,7 +367,7 @@
           "refs": "New Balance · local craft labels",
           "color": "#4a5261",
           "size": "small",
-          "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Ximending_rainbow_crossing_201910.jpg/1280px-Ximending_rainbow_crossing_201910.jpg",
+          "image": "/static/report-img/greater-china-3.jpg",
           "placeholder": true
         },
         {

@@ -1066,7 +1066,7 @@ function unavailableMessage(meta) {
 
 // ── Init ─────────────────────────────────────────────────────────
 async function init() {
-  await Promise.all([loadRegions(), loadConfig()]);
+  await Promise.all([loadRegions(), loadConfig(), loadMeta()]);
   initTimeframeBars();
   initAC('dash-kw-input',    'dash-kw-ac',    kw => { addTagKw(kw, 'dash');    closeAC('dash-kw-ac');    });
   initAC('rc-kw-input',      'rc-kw-ac',      kw => { document.getElementById('rc-kw-input').value = kw;      closeAC('rc-kw-ac');      });
@@ -1081,6 +1081,22 @@ async function init() {
       if (!d.parentElement.contains(e.target)) d.style.display = 'none';
     });
   });
+  // First impression: open with a populated dashboard instead of an empty form
+  if (!dashKeywords.length) {
+    const first = Object.keys(configData.keyword_groups || {})[0];
+    if (first) {
+      document.getElementById('group-select').value = first;
+      loadGroup();
+      runDashboard();
+    }
+  }
+}
+
+async function loadMeta() {
+  try {
+    const m = await (await fetch('/api/meta')).json();
+    if (m.default_source) setSource(m.default_source);
+  } catch(e) { /* keep google default */ }
 }
 
 async function loadRegions() {
@@ -1282,11 +1298,9 @@ function splitMeta(d) {
       ? "Google Trends is unreachable right now"
       : "Google Trends is rate-limiting this IP";
     showBanner(`Showing SAMPLE data — ${why}. Real data will load automatically once it clears (usually a few minutes).`);
-  } else if (meta && meta.source === 'wikipedia') {
-    showBanner(`Live data from Wikipedia pageviews — values are relative daily article views (0–100), not Google searches.`);
-  } else if (meta && meta.source === 'reddit') {
-    showBanner(`Live data from Reddit — values reflect post volume weighted by engagement across sneaker/streetwear subreddits.`);
   } else {
+    // Live data (any source) is the happy path — no banner. What each source
+    // measures is documented in Configure → Data Sources.
     banner.style.display = 'none';
   }
   return data;
@@ -1715,6 +1729,16 @@ function textOn(hex) {
 
 function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
+// Route Wikimedia images through our backend proxy so they always load
+// (browsers hotlinking Wikimedia fail intermittently). Other URLs pass through.
+function imgSrc(url) {
+  try {
+    if (new URL(url).host.toLowerCase().endsWith('wikimedia.org'))
+      return '/api/img?u=' + encodeURIComponent(url);
+  } catch (e) {}
+  return url;
+}
+
 function reportCardHTML(c, i, ed) {
   const hasImg = !!(c.image && c.image.trim());
   const color = c.color || '#2b2925';
@@ -1724,7 +1748,7 @@ function reportCardHTML(c, i, ed) {
   const E = f => ed ? ` contenteditable="true" class="rt-editable" data-rf="${f}"` : '';
   const img = hasImg ? `
     <div class="rt-img">
-      <img src="${esc(c.image)}" alt="" loading="lazy" onerror="this.closest('.rt-img').classList.add('rt-img-broken')">
+      <img src="${esc(imgSrc(c.image))}" alt="" onerror="this.closest('.rt-img').classList.add('rt-img-broken')">
       ${c.placeholder ? '<div class="rt-ph"><span>PLACEHOLDER</span></div>' : ''}
     </div>` : '';
   const strip = ed ? `
