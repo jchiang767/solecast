@@ -150,6 +150,21 @@ try:
 except Exception:
     _cache = {}
 
+# Bundled seed snapshot: a committed dataset of real Google Trends responses for
+# the configured keyword groups + micro-trends, so the app ships with real data
+# and never depends on a live Google request for its default content (works on a
+# fresh clone, a rate-limited IP, or a cloud deploy). Only fills keys the live
+# cache doesn't already have fresher data for.
+SEED_FILE = os.path.join(os.path.dirname(__file__), 'trends_seed.pkl')
+try:
+    if os.path.exists(SEED_FILE):
+        with open(SEED_FILE, 'rb') as f:
+            seed = pickle.load(f)
+        for k, v in seed.items():
+            _cache.setdefault(k, v)
+except Exception:
+    pass
+
 # Global spacing between LIVE Google requests. Rapid bursts (e.g. Breakout's
 # per-keyword loop) are what trip the rate limit — enforce a minimum gap.
 # Thread-safe slot reservation so background refreshes queue behind user
